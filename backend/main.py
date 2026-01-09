@@ -4,52 +4,81 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import timedelta
 from typing import List
+from os import getenv
 
+# Импорт логгера из вашего конфига
+from logging_config import logger
 import models, schemas, database, auth
-
-# Re-create tables to update schema (Simple approach for dev, creates if not exists)
-# In production, use Alembic migrations.
-models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Educational Platform API")
 
+# Миграции управляются через Alembic
+# Смотрите README для инструкций по миграциям
+# Для разработки: alembic upgrade head
+
 origins = ["http://localhost:5173", "http://localhost:3000"]
+
+ALLOWED_ORIGINS = getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:3000"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+    allow_origin_regex=None,  # Для продакшена можно использовать regex
 )
+
 
 # --- AUTH ROUTES ---
 
 @app.post("/register", response_model=schemas.UserResponse)
 def register_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
-    if user.email:
-        db_email = db.query(models.User).filter(models.User.email == user.email).first()
-        if db_email:
-            raise HTTPException(status_code=400, detail="Этот Email уже зарегистрирован")
-    
-    hashed_password = auth.get_password_hash(user.password)
-    email_val = user.email if user.email else None
+    try:
+        # Проверка существующего пользователя
+        db_user = db.query(models.User).filter(models.User.username == user.username).first()
+        if db_user:
+            logger.warning(f"Попытка регистрации с существующим username: {user.username}")
+            raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует")
+        
+        # Проверка Email, если он указан
+        if user.email:
+            db_email = db.query(models.User).filter(models.User.email == user.email).first()
+            if db_email:
+                logger.warning(f"Попытка регистрации с существующим email: {user.email}")
+                raise HTTPException(status_code=400, detail="Этот Email уже зарегистрирован")
+        
+        # Хеширование и создание
+        hashed_password = auth.get_password_hash(user.password)
+        
+        new_user = models.User(
+            username=user.username,
+            email=user.email,
+            hashed_password=hashed_password,
+            role=user.role,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            middle_name=user.middle_name
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        logger.info(f"Новый пользователь успешно зарегистрирован: {user.username} (Роль: {user.role})")
+        return new_user
 
-    new_user = models.User(
-        username=user.username,
-        email=email_val,
-        hashed_password=hashed_password,
-        role=user.role,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        middle_name=user.middle_name
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    except HTTPException as he:
+        # Пробрасываем ошибку валидации (400) дальше
+        raise he
+    except Exception as e:
+        # Логируем критические ошибки базы данных или кода
+        logger.error(f"Ошибка при регистрации пользователя {user.username}: {str(e)}")
+        db.rollback() # Откатываем транзакцию при ошибке
+        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера при регистрации")
 
 @app.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
@@ -130,14 +159,19 @@ def complete_task(task_id: int, current_user: models.User = Depends(auth.get_cur
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
     
-    if task.status != models.TaskStatus.COMPLETED:
-        task.status = models.TaskStatus.COMPLETED
-        current_user.xp += task.reward_xp
-        # Simple level up logic: 100 XP per level
-        if current_user.xp >= current_user.level * 100:
-            current_user.level += 1
-            current_user.xp = 0 # Or keep overflow
-        db.commit()
+        if task.status != models.TaskStatus.COMPLETED:
+            task.status = models.TaskStatus.COMPLETED
+            current_user.xp += task.reward_xp
+            
+            # Проверка повышения уровня
+            required_xp = current_user.level * 100
+            if current_user.xp >= required_xp:
+                overflow_xp = current_user.xp - required_xp  # ✅ СОХРАНЯЕМ ЛИШНИЕ XP
+                current_user.level += 1
+                current_user.xp = overflow_xp
+            
+            db.commit()
+
     
     return {"message": "Задание выполнено!", "new_xp": current_user.xp, "new_level": current_user.level}
 
