@@ -144,22 +144,6 @@ VITE_API_URL=http://127.0.0.1:8000
 - 200 XP = Повышение на уровень 2
 - Переполнение XP сохраняется
 
-## 📝 Логирование
-
-Логи: `backend/logs/app.log`
-- Max 10MB с ротацией
-- Уровни: DEBUG, INFO, WARNING, ERROR
-- Пример: `2026-01-10 02:00:00 - kidslearn - INFO - ✅ Пользователь зарегистрирован`
-
-## 🚨 Rate Limiting
-
-При превышении лимита:
-```json
-{
-  "detail": "Слишком много запросов. Попробуйте позже."
-}
-```
-HTTP 429 Too Many Requests
 
 ## 📱 Поддерживаемые браузеры
 
@@ -170,6 +154,3 @@ HTTP 429 Too Many Requests
 
 ---
 
-**Версия:** 2.0 (Rate Limiting + Refresh Token)  
-**Статус:** Production-Ready (87%)  
-**Дата:** Январь 2026
