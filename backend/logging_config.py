@@ -3,8 +3,9 @@ from logging.handlers import RotatingFileHandler
 import os
 
 def setup_logging():
-    """Настроить логирование приложения"""
+    """ Настройка логирования приложения """
     
+    # Создать папку logs если её нет
     # Создать папку logs если её нет
     if not os.path.exists('logs'):
         os.makedirs('logs')
@@ -17,7 +18,8 @@ def setup_logging():
     file_handler = RotatingFileHandler(
         'logs/app.log',
         maxBytes=10485760,  # 10MB
-        backupCount=10
+        backupCount=10,
+        encoding='utf-8'
     )
     file_handler.setLevel(logging.DEBUG)
     

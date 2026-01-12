@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 sqlalchemy
-pydantic
+pydantic[email]
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
@@ -9,3 +9,5 @@ python-dotenv
 bcrypt
 slowapi
 alembic
+pytest
+httpx

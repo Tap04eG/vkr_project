@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from typing import Optional, List
+from datetime import datetime
 from models import UserRole, TaskStatus
 
 # --- Схемы для создания данных (ввод) ---
@@ -33,9 +34,23 @@ class UserCreate(BaseModel):
 
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
-    description: str = Field(..., min_length=5, max_length=5000)
+    description: str = Field(..., min_length=1, max_length=5000)
     reward_xp: int = Field(default=10, ge=1, le=1000)
     student_id: int = Field(..., gt=0)
+    task_type: str = "text"
+    task_data: Optional[str] = "{}"
+
+class TaskCheckRequest(BaseModel):
+    user_answer: object
+    attempt_count: Optional[int] = 1
+
+class TaskBulkCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    description: str = Field(..., min_length=1, max_length=5000)
+    reward_xp: int = Field(default=10, ge=1, le=1000)
+    student_ids: List[int]
+    task_type: str = "text"
+    task_data: Optional[str] = "{}"
 
 class ClassCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -55,9 +70,6 @@ class UserResponse(BaseModel):
     level: int
     tasks_completed: int = 0
 
-    class Config:
-        from_attributes = True  # Позволяет Pydantic работать с моделями SQLAlchemy
-
 class TaskResponse(BaseModel):
     id: int
     title: str
@@ -66,6 +78,10 @@ class TaskResponse(BaseModel):
     status: TaskStatus
     teacher_id: int
     student_id: int
+    class_id: Optional[int] = None
+    created_at: datetime
+    task_type: str
+    task_data: str
 
     class Config:
         from_attributes = True
@@ -82,6 +98,7 @@ class ClassResponse(ClassCreate):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str
 
 class TokenData(BaseModel):

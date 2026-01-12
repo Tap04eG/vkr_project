@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Body, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,8 +6,9 @@ from datetime import timedelta
 from typing import List
 from os import getenv
 from jose import JWTError, jwt
+from pydantic import BaseModel
 
-# ===== RATE LIMITING =====
+# ОГРАНИЧЕНИЕ ЗАПРОСОВ (RATE LIMITING)
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -17,7 +18,7 @@ from fastapi.responses import JSONResponse
 from logging_config import logger
 import models, schemas, database, auth
 
-# ===== СОЗДАНИЕ LIMITER =====
+# НАСТРОЙКА LIMITER
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="Educational Platform API")
@@ -25,7 +26,7 @@ app = FastAPI(title="Educational Platform API")
 # Подключить limiter к приложению
 app.state.limiter = limiter
 
-# ===== ОБРАБОТЧИК ОШИБОК RATE LIMITING =====
+# ОБРАБОТЧИК ОШИБОК ОГРАНИЧЕНИЯ ЗАПРОСОВ
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request, exc):
     """
@@ -43,10 +44,11 @@ async def rate_limit_handler(request, exc):
 
 origins = ["http://localhost:5173", "http://localhost:3000"]
 
-ALLOWED_ORIGINS = getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:3000"
-).split(",")
+ALLOWED_ORIGINS = [
+    origin.strip() 
+    for origin in getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",") 
+    if origin.strip()
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,15 +60,15 @@ app.add_middleware(
 )
 
 # ============================================================================
-# ============================= AUTH ROUTES ================================
+# МАРШРУТЫ АВТОРИЗАЦИИ
 # ============================================================================
 
 @app.post("/register", response_model=schemas.UserResponse)
-@limiter.limit("5/minute")  # 🛡️ Максимум 5 регистраций в минуту на один IP
-def register_user(request, user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+@limiter.limit("5/minute")  # Максимум 5 регистраций в минуту на один IP
+def register_user(request: Request, user: schemas.UserCreate, db: Session = Depends(database.get_db)):
 
     try:
-        # Проверка существующего пользователя
+        # Проверка существования пользователя
         db_user = db.query(models.User).filter(models.User.username == user.username).first()
         if db_user:
             logger.warning(f"Попытка регистрации с существующим username: {user.username}")
@@ -104,7 +106,7 @@ def register_user(request, user: schemas.UserCreate, db: Session = Depends(datab
         db.commit()
         db.refresh(new_user)
         
-        logger.info(f"✅ Новый пользователь зарегистрирован: {user.username} (Роль: {user.role})")
+        logger.info(f"Новый пользователь зарегистрирован: {user.username} (Роль: {user.role})")
         return new_user
 
     except HTTPException as he:
@@ -113,7 +115,7 @@ def register_user(request, user: schemas.UserCreate, db: Session = Depends(datab
     
     except Exception as e:
         # Логируем критические ошибки базы данных или кода
-        logger.error(f"❌ Ошибка при регистрации {user.username}: {str(e)}")
+        logger.error(f"Ошибка при регистрации {user.username}: {str(e)}")
         db.rollback()  # Откатываем транзакцию при ошибке
         raise HTTPException(
             status_code=500, 
@@ -121,10 +123,12 @@ def register_user(request, user: schemas.UserCreate, db: Session = Depends(datab
         )
 
 
-@app.post("/token", response_model=schemas.Token)
-@limiter.limit("10/minute")  # 🛡️ Максимум 10 попыток входа в минуту
+# ============================================================================
+# ВХОД И ПОЛУЧЕНИЕ ТОКЕНА
+# ============================================================================
+@limiter.limit("10/minute")  # Максимум 10 попыток входа в минуту
 def login_for_access_token(
-    request,
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(database.get_db)
 ):
@@ -132,7 +136,7 @@ def login_for_access_token(
         user = db.query(models.User).filter(models.User.username == form_data.username).first()
         
         if not user or not auth.verify_password(form_data.password, user.hashed_password):
-            logger.warning(f"⚠️ Неудачная попытка входа: {form_data.username}")
+            logger.warning(f"Неудачная попытка входа: {form_data.username}")
             raise HTTPException(
                 status_code=401, 
                 detail="Неверное имя пользователя или пароль"
@@ -142,11 +146,15 @@ def login_for_access_token(
         access_token = auth.create_access_token(
             data={"sub": user.username, "role": user.role.value}
         )
+        refresh_token = auth.create_refresh_token(
+            data={"sub": user.username}
+        )
         
-        logger.info(f"✅ Успешный вход: {user.username}")
+        logger.info(f"Успешный вход: {user.username}")
         
         return {
             "access_token": access_token, 
+            "refresh_token": refresh_token,
             "token_type": "bearer"
         }
     
@@ -162,24 +170,28 @@ def login_for_access_token(
 
 
 @app.get("/users/me", response_model=schemas.UserResponse)
-@limiter.limit("60/minute")  # 🛡️ 60 запросов в минуту = 1 запрос в секунду
+@limiter.limit("60/minute")  # 60 запросов в минуту = 1 запрос в секунду
 async def read_users_me(
-    request,
+    request: Request,
     current_user: models.User = Depends(auth.get_current_user)
 ):
     logger.debug(f"📋 Запрос профиля: {current_user.username}")
     return current_user
 
-
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+    
 @app.post("/refresh-token", response_model=schemas.Token)
-@limiter.limit("20/minute")  # 🛡️ 20 запросов на обновление в минуту
+@limiter.limit("20/minute")
 def refresh_access_token(
-    request,
-    refresh_token: str, 
+    request: Request,
+    token_data: RefreshTokenRequest, 
     db: Session = Depends(database.get_db)
 ):
+    
+    refresh_token = token_data.refresh_token
     try:
-        # Декодировать refresh token
+        # Декодировать refresh токен
         payload = jwt.decode(
             refresh_token, 
             auth.SECRET_KEY, 
@@ -188,7 +200,7 @@ def refresh_access_token(
         
         # Проверить что это refresh токен
         if payload.get("type") != "refresh":
-            logger.warning(f"⚠️ Попытка использовать неправильный тип токена")
+            logger.warning(f"Попытка использовать неправильный тип токена")
             raise HTTPException(
                 status_code=401, 
                 detail="Invalid token type"
@@ -197,7 +209,7 @@ def refresh_access_token(
         # Получить username из токена
         username = payload.get("sub")
         if not username:
-            logger.warning(f"⚠️ Refresh токен без username")
+            logger.warning(f"Refresh токен без username")
             raise HTTPException(
                 status_code=401, 
                 detail="Invalid token"
@@ -206,7 +218,7 @@ def refresh_access_token(
         # Найти пользователя в БД
         user = db.query(models.User).filter(models.User.username == username).first()
         if not user:
-            logger.warning(f"⚠️ Пользователь не найден при обновлении токена: {username}")
+            logger.warning(f"Пользователь не найден при обновлении токена: {username}")
             raise HTTPException(
                 status_code=404, 
                 detail="User not found"
@@ -217,7 +229,7 @@ def refresh_access_token(
             data={"sub": user.username, "role": user.role.value}
         )
         
-        logger.info(f"✅ Токен обновлен для пользователя: {username}")
+        logger.info(f"Токен обновлен для пользователя: {username}")
         
         return {
             "access_token": new_access_token, 
@@ -225,7 +237,7 @@ def refresh_access_token(
         }
     
     except JWTError as je:
-        logger.warning(f"⚠️ Ошибка JWT при обновлении токена: {str(je)}")
+        logger.warning(f"Ошибка JWT при обновлении токена: {str(je)}")
         raise HTTPException(
             status_code=401, 
             detail="Invalid refresh token"
@@ -235,7 +247,7 @@ def refresh_access_token(
         raise he
     
     except Exception as e:
-        logger.error(f"❌ Ошибка при обновлении токена: {str(e)}")
+        logger.error(f"Ошибка при обновлении токена: {str(e)}")
         raise HTTPException(
             status_code=500, 
             detail="Ошибка при обновлении токена"
@@ -243,13 +255,13 @@ def refresh_access_token(
 
 
 # ============================================================================
-# ===================== CLASSROOM & TEACHER ROUTES ==========================
+# МАРШРУТЫ КЛАССОВ И УЧИТЕЛЕЙ
 # ============================================================================
 
 @app.post("/classes", response_model=schemas.ClassResponse)
 @limiter.limit("10/minute")
 def create_class(
-    request,
+    request: Request,
     class_data: schemas.ClassCreate, 
     current_user: models.User = Depends(auth.get_current_user), 
     db: Session = Depends(database.get_db)
@@ -274,7 +286,7 @@ def create_class(
     db.commit()
     db.refresh(new_class)
     
-    logger.info(f"✅ Класс создан: {class_data.name} (Учитель: {current_user.username})")
+    logger.info(f"Класс создан: {class_data.name} (Учитель: {current_user.username})")
     
     return new_class
 
@@ -282,7 +294,7 @@ def create_class(
 @app.get("/teachers/my-classes", response_model=List[schemas.ClassResponse])
 @limiter.limit("30/minute")  
 def get_my_classes(
-    request,
+    request: Request,
     current_user: models.User = Depends(auth.get_current_user), 
     db: Session = Depends(database.get_db)
 ):
@@ -297,32 +309,314 @@ def get_my_classes(
     ).filter(models.ClassGroup.teacher_id == current_user.id).all()
 
 
-@app.post("/classes/{class_id}/add-student/{username}")
-@limiter.limit("20/minute")  # 🛡️ Максимум 20 добавлений в минуту
+@app.post("/classes/{class_id}/students")
+@limiter.limit("20/minute")  #  Максимум 20 добавлений в минуту
 def add_student_to_class(
-    request,
+    request: Request,
     class_id: int, 
-    username: str, 
-    current_user: models.User = Depends(auth.get_current_user), 
+    link_request: schemas.LinkChildRequest,
+    current_user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(database.get_db)
 ):
     """
-    Добавить ученика в класс (только учитель может это сделать)
+    Добавление ученика в класс (Учитель).
+    Теперь передаем username в теле запроса (json).
     
     Rate Limit: 20/minute
     """
     if current_user.role != models.UserRole.TEACHER:
-        logger.warning(f"⚠️ Попытка добавить ученика не-учителем: {current_user.username}")
+        logger.warning(f"Попытка добавить ученика не-учителем: {current_user.username}")
         raise HTTPException(
             status_code=403, 
             detail="Only teachers"
         )
     
     student = db.query(models.User).filter(
-        models.User.username == username, 
+        models.User.username == link_request.child_username, 
         models.User.role == models.UserRole.STUDENT
     ).first()
+    
     if not student:
-        logger.warning(f"⚠️ Ученик не найден: {username}")
+        logger.warning(f"Ученик не найден: {link_request.child_username}")
         raise HTTPException(
             status_code=404,
+            detail="Student not found"
+        )
+    
+    # Check if student is already in a class
+    if student.class_id:
+         # Lazy load the class if needed (it should be accessible via relationship)
+         current_class_name = student.class_group.name if student.class_group else f"ID {student.class_id}"
+         raise HTTPException(
+             status_code=400,
+             detail=f"Ученик уже в классе: {current_class_name}"
+         )
+
+    # Check if class exists
+    class_group = db.query(models.ClassGroup).filter(models.ClassGroup.id == class_id).first()
+    if not class_group:
+        raise HTTPException(status_code=404, detail="Class not found")
+        
+    # Check ownership
+    if class_group.teacher_id != current_user.id:
+         raise HTTPException(status_code=403, detail="Not your class")
+
+    student.class_id = class_id
+    db.commit()
+    
+    logger.info(f"Ученик {link_request.child_username} добавлен в класс {class_id}")
+    return {"message": f"Student {link_request.child_username} added to class {class_id}"}
+
+
+# ============================================================================
+# МАРШРУТЫ ЗАДАЧ
+# ============================================================================
+
+@app.post("/tasks", response_model=schemas.TaskResponse)
+@limiter.limit("20/minute")
+def create_task(
+    request: Request,
+    task: schemas.TaskCreate,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Создать задание для ученика (только учитель)
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(
+            status_code=403, 
+            detail="Only teachers can assign tasks"
+        )
+    
+    # Проверка существования ученика
+    student = db.query(models.User).filter(models.User.id == task.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    # ПРОВЕРКА БЕЗОПАСНОСТИ: Предотвращение IDOR
+    # Проверяем, что ученик находится в классе, которым руководит текущий учитель
+    if not student.class_group or student.class_group.teacher_id != current_user.id:
+        logger.warning(f"⚠️ Security Alert: Учитель {current_user.username} попытался выдать задание чужому ученику {student.username}")
+        raise HTTPException(
+            status_code=403,
+            detail="Вы можете выдавать задания только ученикам своих классов"
+        )
+
+    new_task = models.Task(
+        title=task.title,
+        description=task.description,
+        reward_xp=task.reward_xp,
+        student_id=task.student_id,
+        teacher_id=current_user.id,
+        status=models.TaskStatus.PENDING,
+        task_type=task.task_type,
+        task_data=task.task_data
+    )
+    
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
+    
+    logger.info(f"Задание '{task.title}' выдано ученику {student.username} (xp: {task.reward_xp})")
+    return new_task
+
+@app.post("/tasks/bulk")
+@limiter.limit("10/minute") # 10 mass assignments per minute
+def create_tasks_bulk(
+    request: Request,
+    task_data: schemas.TaskBulkCreate,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Массовая выдача заданий (только учитель)
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers")
+    
+    if not task_data.student_ids:
+        raise HTTPException(status_code=400, detail="No students selected")
+
+    # 1. Fetch all target students with class_group loaded
+    from sqlalchemy.orm import joinedload
+    students = db.query(models.User).options(
+        joinedload(models.User.class_group)
+    ).filter(models.User.id.in_(task_data.student_ids)).all()
+    
+    if len(students) != len(task_data.student_ids):
+        raise HTTPException(status_code=400, detail="Some students not found")
+
+    # 2. Проверка безопасности: Убеждаемся, что ВСЕ ученики принадлежат классам этого учителя
+    # Проверяем, есть ли хоть один студент НЕ из классов учителя
+    for student in students:
+        if not student.class_group or student.class_group.teacher_id != current_user.id:
+            logger.warning(f"⚠️ Security Alert: Mass assign to outsider {student.username}")
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Student {student.username} is not in your class"
+            )
+
+    # 3. Создание задач
+    new_tasks = []
+    for student in students:
+        new_task = models.Task(
+            title=task_data.title,
+            description=task_data.description,
+            reward_xp=task_data.reward_xp,
+            student_id=student.id,
+            teacher_id=current_user.id,
+            status=models.TaskStatus.PENDING,
+            task_type=task_data.task_type,
+            task_data=task_data.task_data
+        )
+        db.add(new_task)
+        new_tasks.append(new_task)
+    
+    db.commit()
+    logger.info(f"Mass assignment: '{task_data.title}' to {len(students)} students by {current_user.username}")
+    
+    return {"message": f"Successfully assigned to {len(students)} students"}
+
+@app.get("/tasks/my", response_model=List[schemas.TaskResponse])
+@limiter.limit("30/minute")
+def get_my_tasks(
+    request: Request,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Получить задания текущего ученика
+    """
+    return db.query(models.Task).filter(models.Task.student_id == current_user.id).all()
+
+import json
+
+@app.post("/tasks/{task_id}/check")
+@limiter.limit("20/minute")
+def check_task(
+    request: Request,
+    task_id: int,
+    check_data: schemas.TaskCheckRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Проверка ответа задачи на сервере
+    """
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+        
+    if task.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your task")
+        
+    if task.status == models.TaskStatus.COMPLETED:
+        return {"correct": True, "message": "Already completed", "new_xp": current_user.xp}
+
+    # Вспомогательная функция для парсинга данных
+    try:
+        data = json.loads(task.task_data) if isinstance(task.task_data, str) else task.task_data
+    except:
+        data = {}
+
+    is_correct = False
+    user_answer = check_data.user_answer
+
+    # Логика валидации
+    if task.task_type == "selection":
+        # Ожидаем список индексов выбранных элементов
+        if isinstance(user_answer, list):
+            selected_vals = [data.get('items')[i] for i in user_answer if 0 <= i < len(data.get('items', []))]
+            correct_vals = data.get('correctItems', [])
+            is_correct = sorted(selected_vals) == sorted(correct_vals)
+            
+    elif task.task_type == "ordering":
+        # Ожидаем строку (собранное слово)
+        if isinstance(user_answer, str):
+            is_correct = user_answer == data.get('targetWord')
+            
+    elif task.task_type == "input":
+        if isinstance(user_answer, str):
+            is_correct = user_answer.strip().lower() == data.get('correctAnswer', '').strip().lower()
+
+    elif task.task_type == "fill_blanks":
+        # Ожидаем словарь {index: answer}
+        if isinstance(user_answer, dict):
+            all_correct = True
+            for b in data.get('blanks', []):
+                idx = str(b['index']) # JSON keys are strings
+                user_val = user_answer.get(idx) or user_answer.get(int(idx)) or ""
+                if user_val.lower() != b['correct'].lower():
+                    all_correct = False
+                    break
+            is_correct = all_correct
+
+    else:
+        # Текстовые или логические задачи для ручной проверки (пока авто-зачет)
+        is_correct = True
+
+    if is_correct:
+        # Расчет XP с учетом штрафа за попытки
+        # Штраф: -2 XP за каждую попытку после первой, но не меньше 1 XP
+        attempts = check_data.attempt_count or 1
+        penalty = (attempts - 1) * 2
+        earned_xp = max(1, task.reward_xp - penalty)
+
+        task.status = models.TaskStatus.COMPLETED
+        current_user.xp += earned_xp
+        
+        # Логика повышения уровня
+        current_user.level = (current_user.xp // 100) + 1
+        
+        db.commit()
+        return {"correct": True, "message": "Правильно!", "new_xp": current_user.xp, "earned_xp": earned_xp}
+    else:
+        return {"correct": False, "message": "Incorrect, try again"}
+
+
+@app.post("/tasks/{task_id}/complete")
+@limiter.limit("10/minute")
+def complete_task(
+    request: Request,
+    task_id: int,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Отметить задание как выполненное и получить XP
+    """
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+        
+    if task.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your task")
+        
+    if task.status == models.TaskStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="Task already completed")
+        
+    # Обновляем статус
+    task.status = models.TaskStatus.COMPLETED
+    
+    # Начисляем XP
+    current_user.xp += task.reward_xp
+    
+    # Логика повышения уровня (каждые 100 XP)
+    old_level = current_user.level
+    current_user.level = (current_user.xp // 100) + 1
+    
+    if current_user.level > old_level:
+        logger.info(f"🎉 Пользователь {current_user.username} повысил уровень до {current_user.level}!")
+    
+    db.commit()
+    
+    logger.info(f"Задание {task_id} выполнено пользователем {current_user.username}. +{task.reward_xp} XP")
+    
+    return {
+        "message": "Task completed", 
+        "new_xp": current_user.xp,
+        "new_level": current_user.level
+    }

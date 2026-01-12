@@ -14,6 +14,12 @@ load_dotenv()
 
 # Конфигурация из переменных окружения
 SECRET_KEY = os.getenv("SECRET_KEY", "default-dev-key-change-in-production")
+
+# ПРОВЕРКА БЕЗОПАСНОСТИ: Предупредить, если используется дефолтный ключ
+if SECRET_KEY == "default-dev-key-change-in-production":
+    # В продакшене это должно вызывать ошибку. Для разработки оставим предупреждение.
+    print("⚠️  ВНИМАНИЕ: Используется стандартный SECRET_KEY. Это небезопасно для продакшена!")
+
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE_DAYS = 7

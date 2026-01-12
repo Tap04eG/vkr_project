@@ -1,0 +1,11 @@
+2026-01-12 20:46:56,647 - kidslearn - ERROR - ╬°шсър яЁш ЁхушёЄЁрЎшш debuguser: (sqlite3.OperationalError) no such table: users
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.role AS users_role, users.is_active AS users_is_active, users.first_name AS users_first_name, users.last_name AS users_last_name, users.middle_name AS users_middle_name, users.xp AS users_xp, users.level AS users_level, users.class_id AS users_class_id 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('debuguser', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+--- START DEBUG ---
+Status: 500
+Body: {"detail":"┬эєЄЁхээ   ю°шсър ёхЁтхЁр яЁш ЁхушёЄЁрЎшш"}
+--- END DEBUG ---

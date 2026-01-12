@@ -13,7 +13,7 @@ class TaskStatus(str, enum.Enum):
     PENDING = "pending"
     COMPLETED = "completed"
 
-# Association Tables
+# Таблицы связей (Многие-ко-многим)
 parent_student = Table(
     'parent_student', Base.metadata,
     Column('parent_id', Integer, ForeignKey('users.id')),
@@ -30,20 +30,20 @@ class User(Base):
     role = Column(Enum(UserRole))
     is_active = Column(Boolean, default=True)
 
-    # Personal Info
+    # Личная информация
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     middle_name = Column(String, nullable=True)
     
-    # Gamification for students
+    # Геймификация для учеников
     xp = Column(Integer, default=0)
     level = Column(Integer, default=1)
     
-    # Relationships
+    # Связи / Отношения
     tasks_assigned = relationship("Task", foreign_keys="Task.student_id", back_populates="student")
     tasks_created = relationship("Task", foreign_keys="Task.teacher_id", back_populates="teacher")
     
-    # Parent-Child
+    # Родитель-Ученик
     children = relationship(
         "User", 
         secondary=parent_student,
@@ -52,11 +52,11 @@ class User(Base):
         backref="parents"
     )
     
-    # Teacher-Class (Clarified foreign_keys)
-    # Allows mapping "Which classes does this teacher own?"
+    # Учитель-Класс (Явное указание внешних ключей)
+    # Позволяет определить "Какими классами владеет этот учитель?"
     classes_owned = relationship("ClassGroup", back_populates="teacher", foreign_keys="ClassGroup.teacher_id")
     
-    # Student-Class (One student fits in one class)
+    # Ученик-Класс (Один ученик может быть только в одном классе)
     class_id = Column(Integer, ForeignKey('class_groups.id'), nullable=True)
     class_group = relationship("ClassGroup", back_populates="students", foreign_keys=[class_id])
 
@@ -71,9 +71,9 @@ class ClassGroup(Base):
     name = Column(String)
     teacher_id = Column(Integer, ForeignKey('users.id'))
     
-    # Explicit relationships
+    # Явные связи
     teacher = relationship("User", back_populates="classes_owned", foreign_keys=[teacher_id])
-    students = relationship("User", back_populates="class_group", foreign_keys="User.class_id")
+    students = relationship("User", back_populates="class_group", foreign_keys=[User.class_id])
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -82,6 +82,11 @@ class Task(Base):
     title = Column(String)
     description = Column(String)
     reward_xp = Column(Integer, default=10)
+    
+    # Новые поля для интерактивных задач
+    task_type = Column(String, default="text") # text, ordering, selection, input, fill_blanks
+    task_data = Column(String, default="{}") # JSON строка для конфигурации игры
+    
     status = Column(Enum(TaskStatus), default=TaskStatus.PENDING)
     created_at = Column(DateTime, default=datetime.utcnow)
     

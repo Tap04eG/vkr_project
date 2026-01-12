@@ -18,8 +18,12 @@ const Register = () => {
 
     const isStep1Valid = formData.email.includes('@');
     const isStep2Valid = formData.role !== '';
-    const isStep3Valid = formData.firstName && formData.lastName && formData.username && formData.password.length >= 6;
+    const isStep3Valid = formData.firstName && formData.lastName && formData.username.length >= 3
+        && formData.password.length >= 8
+        && /[A-Z]/.test(formData.password)
+        && /\d/.test(formData.password);
 
+    // Навигация между шагами регистрации
     const handleNext = () => {
         if (step === 1 && isStep1Valid) setStep(2);
         else if (step === 2 && isStep2Valid) setStep(3);
@@ -29,8 +33,40 @@ const Register = () => {
         if (step > 1) setStep(step - 1);
     };
 
+    // ============================================================================
+    // ОБРАБОТКА РЕГИСТРАЦИИ
+    // ============================================================================
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (step < 3) {
+            handleNext();
+            return;
+        }
+
+        if (step === 3) {
+            if (!formData.firstName || !formData.lastName) {
+                alert("Введите Имя и Фамилию");
+                return;
+            }
+            if (formData.username.length < 3) {
+                alert("Логин должен быть не менее 3 символов");
+                return;
+            }
+            if (formData.password.length < 8) {
+                alert("Пароль должен быть не менее 8 символов");
+                return;
+            }
+            if (!/[A-Z]/.test(formData.password)) {
+                alert("Пароль должен содержать хотя бы одну заглавную букву");
+                return;
+            }
+            if (!/\d/.test(formData.password)) {
+                alert("Пароль должен содержать хотя бы одну цифру");
+                return;
+            }
+        }
+
         try {
             const payload = {
                 username: formData.username,
@@ -45,8 +81,20 @@ const Register = () => {
             await api.post('/register', payload);
             alert("Регистрация успешна! Теперь войдите.");
             navigate('/login');
+
         } catch (error) {
-            alert(`Ошибка регистрации: ${error.response?.data?.detail || 'Проверьте данные'}`);
+            let errorMsg = 'Проверьте данные';
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    // Pydantic validation error array
+                    errorMsg = detail.map(err => `${err.loc[1]}: ${err.msg}`).join('\n');
+                } else {
+                    // Simple string error
+                    errorMsg = detail;
+                }
+            }
+            alert(`Ошибка регистрации:\n${errorMsg}`);
         }
     };
 
@@ -79,7 +127,7 @@ const Register = () => {
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                    {/* STEP 1: Email */}
+                    {/* ШАГ 1: Ввод Email */}
                     {step === 1 && (
                         <div className="fade-in">
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Ваша почта</label>
@@ -94,7 +142,7 @@ const Register = () => {
                         </div>
                     )}
 
-                    {/* STEP 2: Role */}
+                    {/* ШАГ 2: Выбор Роли */}
                     {step === 2 && (
                         <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                             <RoleCard role="student" current={formData.role} set={r => setFormData({ ...formData, role: r })} icon={<User />} label="Ученик" />
@@ -103,7 +151,7 @@ const Register = () => {
                         </div>
                     )}
 
-                    {/* STEP 3: FIO & Password */}
+                    {/* ШАГ 3: Личные данные и Пароль */}
                     {step === 3 && (
                         <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -124,12 +172,23 @@ const Register = () => {
                             <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '0.5rem 0' }} />
 
                             <div>
-                                <label style={{ fontSize: '0.85rem', color: '#666' }}>Придумайте Логин</label>
+                                <label style={{ fontSize: '0.85rem', color: '#666' }}>Придумайте Логин (мин. 3 символа)</label>
                                 <input required value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} style={inputStyle} />
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.85rem', color: '#666' }}>Пароль (мин. 6 символов)</label>
+                                <label style={{ fontSize: '0.85rem', color: '#666' }}>Пароль</label>
                                 <input required type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} style={inputStyle} />
+                                <div style={{ marginTop: '5px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ color: formData.password.length >= 8 ? 'green' : '#999', transition: 'color 0.3s' }}>
+                                        {formData.password.length >= 8 ? '✔' : '○'} Минимум 8 символов
+                                    </span>
+                                    <span style={{ color: /[A-Z]/.test(formData.password) ? 'green' : '#999', transition: 'color 0.3s' }}>
+                                        {/[A-Z]/.test(formData.password) ? '✔' : '○'} Заглавная буква
+                                    </span>
+                                    <span style={{ color: /\d/.test(formData.password) ? 'green' : '#999', transition: 'color 0.3s' }}>
+                                        {/\d/.test(formData.password) ? '✔' : '○'} Цифра
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -155,7 +214,7 @@ const Register = () => {
                                 Далее <ArrowRight size={18} />
                             </button>
                         ) : (
-                            <button type="submit" disabled={!isStep3Valid} className="btn btn-primary" style={{ width: '100%', maxWidth: '200px' }}>
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%', maxWidth: '200px' }}>
                                 Зарегистрироваться
                             </button>
                         )}

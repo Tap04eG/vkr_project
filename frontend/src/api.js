@@ -31,18 +31,25 @@ api.interceptors.response.use(
             if (refreshToken) {
                 try {
                     // Используем axios (не api), чтобы не срабатывали эти же интерцепторы
-                    const response = await axios.post(`${api.defaults.baseURL}/refresh-token`, { 
-                        refresh_token: refreshToken 
+                    const response = await axios.post(`${api.defaults.baseURL}/refresh-token`, {
+                        refresh_token: refreshToken
                     });
 
                     const newToken = response.data.access_token;
                     localStorage.setItem('token', newToken);
 
-                    // Обновляем заголовок в оригинальном запросе и повторяем его
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    // Если сервер возвращает новый refresh токен (опционально, но хорошая практика), обновляем и его
+                    if (response.data.refresh_token) {
+                        localStorage.setItem('refreshToken', response.data.refresh_token);
+                    }
+
+                    // Обновляем заголовок в оригинальном запросе к API
+                    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                    originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
                     return api(originalRequest);
                 } catch (refreshError) {
-                    // Если Refresh токен тоже протух — разлогиниваем
+                    // Если Refresh токен тоже закончился — разлогиниваем
                     localStorage.clear();
                     window.location.href = '/login';
                     return Promise.reject(refreshError);
