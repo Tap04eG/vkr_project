@@ -54,6 +54,7 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
                 answerPayload = orderedItems.answer.map(o => o.char).join('');
                 break;
             case 'input':
+            case 'essay':
                 answerPayload = inputAnswer;
                 break;
             case 'fill_blanks':
@@ -73,7 +74,13 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
 
             const resData = response.data;
 
-            if (resData.correct) {
+            if (resData.status === 'on_review') {
+                // Особый статус для ручной проверки
+                setStatus('review_pending');
+                setTimeout(() => {
+                    onComplete(resData);
+                }, 2500);
+            } else if (resData.correct) {
                 setStatus('correct');
                 // Ждем немного перед завершением, чтобы пользователь увидел успех
                 setTimeout(() => {
@@ -259,6 +266,26 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
                 {task.task_type === 'selection' && renderSelection()}
                 {task.task_type === 'ordering' && renderOrdering()}
                 {task.task_type === 'input' && renderInput()}
+                {task.task_type === 'essay' && (
+                    <div style={{ marginTop: '20px', width: '100%' }}>
+                        <p style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{data.question}</p>
+                        <textarea
+                            value={inputAnswer}
+                            onChange={e => setInputAnswer(e.target.value)}
+                            style={{
+                                padding: '15px',
+                                fontSize: '1.1rem',
+                                width: '100%',
+                                minHeight: '150px',
+                                borderRadius: '12px',
+                                border: '2px solid #ddd',
+                                resize: 'vertical',
+                                fontFamily: 'inherit'
+                            }}
+                            placeholder="Напиши свой ответ здесь..."
+                        />
+                    </div>
+                )}
                 {task.task_type === 'fill_blanks' && renderFillBlanks()}
                 {task.task_type === 'text' && <div style={{ fontSize: '1.2rem' }}>Просто нажми "Сдать", когда закончишь.</div>}
             </div>
@@ -280,10 +307,17 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
                         <Check size={32} /> Молодец!
                     </div>
                 )}
+                {status === 'review_pending' && (
+                    <div style={{ color: '#0077b6', fontWeight: 'bold', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                        <RefreshCw size={32} className="spin" /> Отправлено учителю!
+                    </div>
+                )}
             </div>
 
             <style>{`
                 @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+                .spin { animation: spin 2s linear infinite; }
+                @keyframes spin { 100% { transform: rotate(360deg); } }
             `}</style>
         </div>
     );

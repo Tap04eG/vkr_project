@@ -11,6 +11,7 @@ class UserRole(str, enum.Enum):
 
 class TaskStatus(str, enum.Enum):
     PENDING = "pending"
+    ON_REVIEW = "on_review"
     COMPLETED = "completed"
 
 # Таблицы связей (Многие-ко-многим)
@@ -88,6 +89,8 @@ class Task(Base):
     task_data = Column(String, default="{}") # JSON строка для конфигурации игры
     
     status = Column(Enum(TaskStatus), default=TaskStatus.PENDING)
+    student_answer = Column(String, nullable=True) # Ответ ученика (для эссе и ручной проверки)
+    attempts = Column(Integer, default=0) # Количество попыток решения
     created_at = Column(DateTime, default=datetime.utcnow)
     
     student_id = Column(Integer, ForeignKey('users.id'))

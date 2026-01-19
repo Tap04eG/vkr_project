@@ -4,12 +4,12 @@
 
 ## 🛠 Технологический Стек
 
-- **Frontend:** React, Vite, React Router, CSS
+- **Frontend:** React, Vite, React Router, Axios, Lucide React, CSS
 - **Backend:** Python, FastAPI, SQLAlchemy, Alembic
 - **Database:** SQLite (dev) / PostgreSQL (prod)
 - **Security:** JWT, Rate Limiting (slowapi), bcrypt
 - **Logging:** Python logging с ротацией
-- **Миграции:** Alembic
+- **Testing:** Pytest
 
 ## ✨ Возможности
 
@@ -27,130 +27,111 @@
 - Привязка ребенка
 - Просмотр статистики
 
-## 🔐 Безопасность
+## � Установка и Запуск
 
-- **Rate Limiting:** Защита от brute force и spam
-  - /register - 5/minute
-  - /token - 10/minute
-  - /refresh-token - 20/minute (NEW!)
-  - /tasks - 20/minute
-  - /classes - 10/minute
-- **JWT с Refresh Token** для безопасной аутентификации
-- **Логирование** всех действий
-- **Обработка ошибок** с правильными статус кодами
+**ВАЖНО:** Для работы сайта нужно открыть ДВА отдельных окна терминала.
 
-## 🚀 Установка
+### Терминал 1: Backend (Сервер)
 
-### Backend
-```bash
+1. Откройте терминал в папке проекта (`g:\vkr_project\`).
+2. Перейдите в папку backend и настройте окружение:
+
+```powershell
 cd backend
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-pip install -r requirements.txt
-
-# Создать .env файл
-echo 'SECRET_KEY=your-secret-key' > .env
-echo 'DATABASE_URL=sqlite:///./test.db' >> .env
-
-# Миграции
-alembic upgrade head
-
-# Запуск
-uvicorn main:app --reload
+# Активация виртуального окружения (Windows):
+.venv\Scripts\activate
+# Установка зависимостей:
+python -m pip install -r requirements.txt
 ```
 
-API: http://127.0.0.1:8000  
-Docs: http://127.0.0.1:8000/docs
+3. Создайте файл `.env`. Можно использовать пример ниже или просто создать файл руками:
+```powershell
+echo SECRET_KEY=your-secret-key-change-me > .env
+echo DATABASE_URL=sqlite:///./kidslearn.db >> .env
+```
 
-### Frontend
-```bash
+4. Примените миграции базы данных:
+```powershell
+alembic upgrade head
+```
+
+5. Запустите сервер:
+```powershell
+python -m uvicorn main:app --reload
+```
+API будет доступно по адресу: http://127.0.0.1:8000
+Документация (Swagger): http://127.0.0.1:8000/docs
+
+### Терминал 2: Frontend (Клиент)
+
+1. Откройте ВТОРОЙ терминал в папке проекта (`g:\vkr_project\`).
+2. Перейдите в папку frontend и запустите:
+
+```powershell
 cd frontend
 npm install
-
-# Создать .env.local
-echo 'VITE_API_URL=http://127.0.0.1:8000' > .env.local
-
-# Запуск
-npm run dev
+# или npm.cmd install
 ```
 
-Приложение: http://localhost:5173
+3. Создайте файл `.env.local` (если нужно переопределить API URL):
+```powershell
+echo VITE_API_URL=http://127.0.0.1:8000 > .env.local
+```
 
-## 📋 Структура
+4. Запустите клиент:
+```powershell
+npm run dev
+# или npm.cmd run dev
+```
+Приложение откроется по адресу: http://localhost:5173
+
+## 🧪 Тестирование
+
+Для запуска тестов бэкенда используется `pytest`.
+
+```powershell
+cd backend
+# Убедитесь, что venv активирован (.venv\Scripts\activate)
+pytest
+```
+
+## � Безопасность и API
+
+- **Rate Limiting:** Защита от brute force и спама (Login: 10/min, Register: 5/min).
+- **JWT:** Используются Access и Refresh токены.
+
+## �📋 Структура Проекта
 
 ```
 backend/
   ├── migrations/       # Alembic миграции
-  ├── logs/            # Логи (автоматически)
-  ├── main.py          # FastAPI приложение
-  ├── auth.py          # JWT & Rate Limiting
-  ├── models.py        # БД модели
-  ├── schemas.py       # Pydantic схемы
+  ├── logs/             # Логи (автоматически создаются)
+  ├── tests/            # Pytest тесты
+  ├── main.py           # Точка входа FastAPI
+  ├── auth.py           # Логика аутентификации
+  ├── models.py         # SQLAlchemy модели
+  ├── schemas.py        # Pydantic схемы
   └── requirements.txt
 
 frontend/
   └── src/
-      ├── api/
-      │   ├── api.js
-      │   └── errorHandler.js  (NEW!)
-      ├── components/
-      ├── pages/
-      └── App.jsx
+      ├── api/          # Конфигурация Axios
+      ├── components/   # UI компоненты
+      ├── pages/        # Страницы маршрутизации
+      └── App.jsx       # Корневой компонент
 ```
 
-## 🔄 Миграции БД
+## 🔄 Работа с Базой Данных
 
-```bash
-# Создать новую миграцию
-alembic revision --autogenerate -m "Описание"
+```powershell
+# Создать новую миграцию (после изменения models.py)
+alembic revision --autogenerate -m "Описание изменений"
 
-# Применить
+# Применить изменения
 alembic upgrade head
 
-# Откатить
+# Откатить последнее изменение
 alembic downgrade -1
 ```
-
-## 📖 API Endpoints
-
-| Метод | Endpoint | Лимит | Описание |
-|-------|----------|-------|----------|
-| POST | /register | 5/min | Регистрация |
-| POST | /token | 10/min | Вход |
-| POST | /refresh-token | 20/min | Обновление токена (NEW!) |
-| GET | /users/me | 60/min | Профиль |
-| POST | /classes | 10/min | Создать класс |
-| POST | /tasks | 20/min | Создать задачу |
-
-## 🔑 Переменные окружения
-
-### Backend (.env)
-```
-SECRET_KEY=your-secret-key (min 32 chars)
-DATABASE_URL=sqlite:///./test.db
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-```
-
-### Frontend (.env.local)
-```
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-## 📊 XP & Уровни
-
-- 100 XP = Повышение на уровень 1
-- 200 XP = Повышение на уровень 2
-- Переполнение XP сохраняется
-
-
-## 📱 Поддерживаемые браузеры
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
----
 

@@ -126,6 +126,7 @@ def register_user(request: Request, user: schemas.UserCreate, db: Session = Depe
 # ============================================================================
 # ВХОД И ПОЛУЧЕНИЕ ТОКЕНА
 # ============================================================================
+@app.post("/token", response_model=schemas.Token)
 @limiter.limit("10/minute")  # Максимум 10 попыток входа в минуту
 def login_for_access_token(
     request: Request,
@@ -258,6 +259,25 @@ def refresh_access_token(
 # МАРШРУТЫ КЛАССОВ И УЧИТЕЛЕЙ
 # ============================================================================
 
+# ============================================================================
+# МАРШРУТЫ КЛАССОВ И УЧИТЕЛЕЙ
+# ============================================================================
+
+@app.get("/students", response_model=List[schemas.UserResponse])
+@limiter.limit("30/minute")
+def get_all_students(
+    request: Request,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Получить список всех учеников (для учителя)
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers can view student list")
+    
+    return db.query(models.User).filter(models.User.role == models.UserRole.STUDENT).all()
+
 @app.post("/classes", response_model=schemas.ClassResponse)
 @limiter.limit("10/minute")
 def create_class(
@@ -289,6 +309,46 @@ def create_class(
     logger.info(f"Класс создан: {class_data.name} (Учитель: {current_user.username})")
     
     return new_class
+
+
+@app.get("/teachers/stats")
+@limiter.limit("30/minute")
+def get_teacher_stats(
+    request: Request,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Получить статистику для дашборда учителя
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers")
+
+    # 1. Active Classes
+    classes_count = db.query(models.ClassGroup).filter(models.ClassGroup.teacher_id == current_user.id).count()
+
+    # 2. Total Students (in my classes)
+    # Join ClassGroup to ensure we only count students in MY classes
+    # Explicitly specify join condition to avoid ambiguous foreign key error
+    students_count = db.query(models.User).join(
+        models.ClassGroup, 
+        models.User.class_id == models.ClassGroup.id
+    ).filter(
+        models.ClassGroup.teacher_id == current_user.id,
+        models.User.role == models.UserRole.STUDENT
+    ).count()
+
+    # 3. Tasks on Review
+    tasks_on_review = db.query(models.Task).filter(
+        models.Task.teacher_id == current_user.id, 
+        models.Task.status == models.TaskStatus.ON_REVIEW
+    ).count()
+
+    return {
+        "classes_count": classes_count,
+        "students_count": students_count,
+        "tasks_on_review": tasks_on_review
+    }
 
 
 @app.get("/teachers/my-classes", response_model=List[schemas.ClassResponse])
@@ -366,6 +426,79 @@ def add_student_to_class(
     
     logger.info(f"Ученик {link_request.child_username} добавлен в класс {class_id}")
     return {"message": f"Student {link_request.child_username} added to class {class_id}"}
+
+
+# ============================================================================
+# МАРШРУТЫ РОДИТЕЛЕЙ
+# ============================================================================
+
+@app.post("/parents/link-child")
+@limiter.limit("20/minute")
+def link_child_to_parent(
+    request: Request,
+    link_request: schemas.LinkChildRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Привязать ребенка (ученика) к родителю
+    
+    Rate Limit: 20/minute
+    """
+    if current_user.role != models.UserRole.PARENT:
+        logger.warning(f"Попытка привязать ребенка не-родителем: {current_user.username}")
+        raise HTTPException(
+            status_code=403,
+            detail="Только родители могут привязывать детей"
+        )
+    
+    # Найти ученика по username
+    student = db.query(models.User).filter(
+        models.User.username == link_request.child_username,
+        models.User.role == models.UserRole.STUDENT
+    ).first()
+    
+    if not student:
+        logger.warning(f"Ученик не найден: {link_request.child_username}")
+        raise HTTPException(
+            status_code=404,
+            detail="Ученик с таким логином не найден"
+        )
+    
+    # Проверить, не привязан ли уже этот ребенок к этому родителю
+    if student in current_user.children:
+        raise HTTPException(
+            status_code=400,
+            detail="Этот ребенок уже привязан к вашему аккаунту"
+        )
+    
+    # Добавить связь
+    current_user.children.append(student)
+    db.commit()
+    
+    logger.info(f"Родитель {current_user.username} привязал ребенка {student.username}")
+    return {"message": f"Ребенок {student.username} успешно добавлен"}
+
+
+@app.get("/parents/my-children", response_model=List[schemas.UserResponse])
+@limiter.limit("30/minute")
+def get_my_children(
+    request: Request,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Получить список детей текущего родителя
+    
+    Rate Limit: 30/minute
+    """
+    if current_user.role != models.UserRole.PARENT:
+        raise HTTPException(
+            status_code=403,
+            detail="Только родители могут просматривать список детей"
+        )
+    
+    return current_user.children
 
 
 # ============================================================================
@@ -553,15 +686,37 @@ def check_task(
                     break
             is_correct = all_correct
 
+    elif task.task_type == "essay":
+        # Эссе не проверяется автоматически, а отправляется учителю
+        if isinstance(user_answer, str) and len(user_answer.strip()) > 0:
+            task.student_answer = user_answer
+            task.status = models.TaskStatus.ON_REVIEW
+            task.attempts += 1
+            db.commit()
+            return {
+                "correct": True, 
+                "message": "Отправлено на проверку", 
+                "status": "on_review", 
+                "new_xp": current_user.xp
+            }
+        else:
+            return {"correct": False, "message": "Напишите что-нибудь!"}
+
     else:
         # Текстовые или логические задачи для ручной проверки (пока авто-зачет)
         is_correct = True
 
     if is_correct:
-        # Расчет XP с учетом штрафа за попытки
+        # Расчет XP с учетом штрафа за попытки (Server-Side Tracking)
         # Штраф: -2 XP за каждую попытку после первой, но не меньше 1 XP
-        attempts = check_data.attempt_count or 1
-        penalty = (attempts - 1) * 2
+        
+        # Увеличиваем счетчик попыток (даже если правильно)
+        task.attempts += 1
+        
+        # Считаем штраф на основе УЖЕ сделанных попыток
+        # 1-я попытка (attempts=1) -> штраф 0
+        # 2-я попытка (attempts=2) -> штраф 2
+        penalty = (task.attempts - 1) * 2
         earned_xp = max(1, task.reward_xp - penalty)
 
         task.status = models.TaskStatus.COMPLETED
@@ -573,6 +728,10 @@ def check_task(
         db.commit()
         return {"correct": True, "message": "Правильно!", "new_xp": current_user.xp, "earned_xp": earned_xp}
     else:
+        # Увеличиваем счетчик попыток при ошибке
+        task.attempts += 1
+        db.commit()
+        
         return {"correct": False, "message": "Incorrect, try again"}
 
 
@@ -586,14 +745,31 @@ def complete_task(
 ):
     """
     Отметить задание как выполненное и получить XP
+    Разрешено только для задач типа 'theory' или 'manual'
     """
+    print(f"DEBUG: complete_task called for id={task_id} by user={current_user.username} (id={current_user.id})")
+    
+    # Debug: list all tasks
+    all_tasks = db.query(models.Task).all()
+    print(f"DEBUG: All tasks in DB: {[t.id for t in all_tasks]}")
+    
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     
     if not task:
+        print(f"DEBUG: Task {task_id} NOT FOUND.")
         raise HTTPException(status_code=404, detail="Task not found")
         
+    print(f"DEBUG: Found task {task.id}, student_id={task.student_id}, type={task.task_type}")
+
     if task.student_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your task")
+
+    # ПРОВЕРКА БЕЗОПАСНОСТИ: Запретить ручное завершение интерактивных задач
+    if task.task_type not in ["theory", "manual"]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Тип задачи требует автоматической проверки (используйте /check)"
+        )
         
     if task.status == models.TaskStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="Task already completed")
@@ -620,3 +796,85 @@ def complete_task(
         "new_xp": current_user.xp,
         "new_level": current_user.level
     }
+
+# ============================================================================
+# МАРШРУТЫ ДЛЯ ПРОВЕРКИ ЗАДАНИЙ УЧИТЕЛЕМ
+# ============================================================================
+
+@app.get("/teacher/reviews", response_model=List[schemas.TaskResponse])
+@limiter.limit("30/minute")
+def get_reviews(
+    request: Request,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Получить список заданий со статусом ON_REVIEW, которые назначены ученикам этого учителя
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers")
+    
+    logger.info(f"Checking reviews for teacher {current_user.id} ({current_user.username})")
+    
+    # DEBUG: Check total ON_REVIEW tasks
+    total_reviews = db.query(models.Task).filter(models.Task.status == models.TaskStatus.ON_REVIEW).count()
+    logger.info(f"Total ON_REVIEW tasks in DB: {total_reviews}")
+
+    # Можно просто фильтровать по teacher_id, так как этот id проставляется при создании задачи
+    tasks = db.query(models.Task).filter(
+        models.Task.teacher_id == current_user.id,
+        models.Task.status == models.TaskStatus.ON_REVIEW
+    ).all()
+    
+    logger.info(f"Found {len(tasks)} tasks for this teacher.")
+    
+    return tasks
+
+@app.post("/teacher/tasks/{task_id}/approve")
+@limiter.limit("20/minute")
+def approve_task(
+    request: Request,
+    task_id: int,
+    approval_data: schemas.TaskApproveRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Принять задание (Учитель).
+    Можно начислить bonus_xp.
+    """
+    if current_user.role != models.UserRole.TEACHER:
+        raise HTTPException(status_code=403, detail="Only teachers")
+        
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+        
+    if task.teacher_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your task")
+        
+    if task.status != models.TaskStatus.ON_REVIEW:
+        raise HTTPException(status_code=400, detail="Task is not on review")
+        
+    student = db.query(models.User).filter(models.User.id == task.student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student user not found")
+
+    # 1. Update Task
+    task.status = models.TaskStatus.COMPLETED
+    # (Optional) Store feedback if we had a column for it
+    
+    # 2. Award XP
+    total_xp = task.reward_xp + (approval_data.bonus_xp or 0)
+    student.xp += total_xp
+    
+    # 3. Level Up Logic
+    old_level = student.level
+    student.level = (student.xp // 100) + 1
+    
+    db.commit()
+    
+    logger.info(f"Задание {task_id} принято учителем {current_user.username}. +{total_xp} XP ученику {student.username}")
+    
+    return {"message": "Task approved", "student_xp": student.xp, "student_level": student.level}
+

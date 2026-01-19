@@ -6,7 +6,6 @@ def setup_logging():
     """ Настройка логирования приложения """
     
     # Создать папку logs если её нет
-    # Создать папку logs если её нет
     if not os.path.exists('logs'):
         os.makedirs('logs')
     
@@ -37,6 +36,12 @@ def setup_logging():
     # Добавить обработчики
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+
+    # Настройка логирования SQLAlchemy explicitly
+    sql_logger = logging.getLogger('sqlalchemy.engine')
+    sql_logger.setLevel(logging.INFO)
+    sql_logger.addHandler(console_handler)
+    sql_logger.addHandler(file_handler)
     
     return logger
 

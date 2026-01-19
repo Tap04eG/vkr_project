@@ -44,6 +44,10 @@ class TaskCheckRequest(BaseModel):
     user_answer: object
     attempt_count: Optional[int] = 1
 
+class TaskApproveRequest(BaseModel):
+    bonus_xp: Optional[int] = 0
+    feedback: Optional[str] = None
+
 class TaskBulkCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     description: str = Field(..., min_length=1, max_length=5000)
@@ -82,6 +86,7 @@ class TaskResponse(BaseModel):
     created_at: datetime
     task_type: str
     task_data: str
+    student_answer: Optional[str] = None
 
     class Config:
         from_attributes = True

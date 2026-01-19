@@ -14,7 +14,7 @@ from models import Base
 config = context.config
 
 # 2. Установка sqlalchemy.url из переменной окружения или значения по умолчанию
-config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL", "sqlite:///./test.db"))
+config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL", "sqlite:///./sql_app.db"))
 
 # Interpret the config file for Python logging.
 if config.config_file_name is not None:
