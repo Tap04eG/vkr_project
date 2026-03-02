@@ -27,15 +27,23 @@
 - Привязка ребенка
 - Просмотр статистики
 
-## � Установка и Запуск
+## 🚀 Установка и Запуск (Single-Port Deployment)
 
-**ВАЖНО:** Для работы сайта нужно открыть ДВА отдельных окна терминала.
+Проект настроен на работу через единый порт **8000**, где FastAPI раздает как API, так и собранный React-фронтенд.
 
-### Терминал 1: Backend (Сервер)
+### Шаг 1: Подготовка Фронтенда (Сборка)
 
-1. Откройте терминал в папке проекта (`g:\vkr_project\`).
-2. Перейдите в папку backend и настройте окружение:
+1. Откройте терминал в папке проекта и перейдите в папку `frontend`:
+```powershell
+cd frontend
+npm install
+npm run build
+```
+*(Эта команда соберет фронтенд в папку `frontend/dist`, откуда его будет забирать бэкенд).*
 
+### Шаг 2: Запуск Бэкенда (Сервер)
+
+1. Откройте терминал и перейдите в папку `backend`:
 ```powershell
 cd backend
 python -m venv .venv
@@ -45,46 +53,33 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-3. Создайте файл `.env`. Можно использовать пример ниже или просто создать файл руками:
-```powershell
-echo SECRET_KEY=your-secret-key-change-me > .env
-echo DATABASE_URL=sqlite:///./kidslearn.db >> .env
+2. Создайте файл `.env` в папке `backend`:
+```env
+SECRET_KEY=your-secret-key-change-me
+DATABASE_URL=sqlite:///./sql_app.db
+ALLOWED_ORIGINS="http://localhost:8000"
 ```
 
-4. Примените миграции базы данных:
+3. Примените миграции базы данных:
 ```powershell
 alembic upgrade head
 ```
 
-5. Запустите сервер:
+4. Запустите сервер:
 ```powershell
-python -m uvicorn main:app --reload
-```
-API будет доступно по адресу: http://127.0.0.1:8000
-Документация (Swagger): http://127.0.0.1:8000/docs
-
-### Терминал 2: Frontend (Клиент)
-
-1. Откройте ВТОРОЙ терминал в папке проекта (`g:\vkr_project\`).
-2. Перейдите в папку frontend и запустите:
-
-```powershell
-cd frontend
-npm install
-# или npm.cmd install
+uvicorn main:app --reload
 ```
 
-3. Создайте файл `.env.local` (если нужно переопределить API URL):
-```powershell
-echo VITE_API_URL=http://127.0.0.1:8000 > .env.local
-```
+### 🎉 Готово!
+- Сайт доступен по адресу: **http://127.0.0.1:8000**
+- Документация API (Swagger): **http://127.0.0.1:8000/docs**
 
-4. Запустите клиент:
+### 🌍 Публикация в интернете (Ngrok)
+Поскольку фронтенд и бэкенд работают на одном порту, для доступа из интернета достаточно одной команды в терминале:
 ```powershell
-npm run dev
-# или npm.cmd run dev
+ngrok http 8000
 ```
-Приложение откроется по адресу: http://localhost:5173
+Скопируйте выданную HTTPS-ссылку и делитесь ей!
 
 ## 🧪 Тестирование
 
