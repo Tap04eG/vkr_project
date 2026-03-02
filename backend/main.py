@@ -1,4 +1,7 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException, status, Body, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -877,4 +880,33 @@ def approve_task(
     logger.info(f"Задание {task_id} принято учителем {current_user.username}. +{total_xp} XP ученику {student.username}")
     
     return {"message": "Task approved", "student_xp": student.xp, "student_level": student.level}
+
+
+# ============================================================================
+# РАЗДАЧА СТАТИКИ И ФРОНТЕНДА (REACT APP)
+# ============================================================================
+
+# Путь к собранному React приложению
+frontend_dist_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+
+if os.path.isdir(frontend_dist_path):
+    # Пытаемся смонтировать assets (js, css, картинки)
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
+    
+    # Отдаем index.html для всех не-API маршрутов (чтобы работал React Router)
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # Если роут начинается с api или docs - мы его пропускаем (FastAPI обработает)
+        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            raise HTTPException(status_code=404, detail="Not Found")
+            
+        # Проверяем, есть ли такой файл (помимо assets, e.g. vite.svg)
+        potential_file_path = os.path.join(frontend_dist_path, full_path)
+        if os.path.isfile(potential_file_path):
+            return FileResponse(potential_file_path)
+            
+        # Иначе всегда отдаем index.html
+        return FileResponse(os.path.join(frontend_dist_path, "index.html"))
+else:
+    logger.warning(f"Папка {frontend_dist_path} не найдена. Соберите фронтенд (npm run build) для раздачи с одного порта.")
 
