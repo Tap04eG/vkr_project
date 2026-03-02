@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.env
+.env.local
+.env.*.local
+*.pyc
+*.pyo
+.env.production
+.coverage
+htmlcov/
+.pytest_cache/
+pytest_cache/
+
+# Node.js / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite3
+*.sql
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug_*.txt
+
+# Another
+vkr-quests/
+
+# Migrations
+# Keep alembic.ini but ignore Mako cache if any
