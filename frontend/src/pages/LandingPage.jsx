@@ -1,100 +1,115 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, BookOpen, Mic, Trophy, Activity, MessageCircle, Users } from 'lucide-react';
+import { Star, BookOpen, Mic, Activity, ArrowRight } from 'lucide-react';
 
 const LandingPage = () => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        setIsVisible(true);
+    }, []);
+
     return (
-        <div className="landing-page">
-            {/* Hero Section */}
-            <section className="hero section-padding" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%)' }}>
-                <div className="container grid-3" style={{ alignItems: 'center', gridTemplateColumns: '1.2fr 0.8fr' }}>
-                    <div className="hero-content">
-                        <h1 className="animate-float">Учение — это Приключение! 🚀</h1>
-                        <p style={{ fontSize: '1.2rem', margin: '1.5rem 0', color: 'var(--text-light)' }}>
-                            Волшебный мир для детей (6-8 лет) для изучения букв, речи и слов.
-                            Родители и учителя помогают в пути.
-                        </p>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <Link to="/register" className="btn btn-primary">Начать Путешествие</Link>
-                            <Link to="/login" className="btn btn-secondary">Войти</Link>
-                        </div>
+        <div className="min-h-screen" style={{ backgroundColor: '#fafafa', color: '#333' }}>
+            {/* Minimalist Hero Section */}
+            <section
+                className="section-padding"
+                style={{
+                    minHeight: '80vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'radial-gradient(circle at top, #f0f9ff 0%, #fafafa 100%)'
+                }}
+            >
+                <div
+                    className="container"
+                    style={{
+                        textAlign: 'center',
+                        maxWidth: '800px',
+                        opacity: isVisible ? 1 : 0,
+                        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+                        transition: 'opacity 0.8s ease, transform 0.8s ease'
+                    }}
+                >
+                    <div className="mb-4" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--primary)', borderRadius: '999px', fontSize: '0.9rem', fontWeight: '500' }}>
+                        <Star size={16} fill="currentColor" />
+                        <span>Новая образовательная платформа</span>
                     </div>
-                    <div className="hero-image" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '8rem', userSelect: 'none' }} className="animate-float">🎨</div>
-                    </div>
-                </div>
-            </section>
 
-            {/* For Kids Section */}
-            <section className="kids-features section-padding">
-                <div className="container">
-                    <h2 style={{ textAlign: 'center', color: 'var(--primary-dark)' }}>Для Учеников 🦁</h2>
-                    <div className="grid-3">
-                        <FeatureCard
-                            icon={<BookOpen size={40} color="var(--primary)" />}
-                            title="Учим Буквы"
-                            desc="Веселые упражнения для изучения алфавита и чтения."
-                            example="А — Арбуз, Б — Барабан!"
-                        />
-                        <FeatureCard
-                            icon={<Mic size={40} color="var(--danger)" />}
-                            title="Речь и Слух"
-                            desc="Слушай звуки и учись говорить четко."
-                            example="Опиши картинку, которую видишь!"
-                        />
-                        <FeatureCard
-                            icon={<Trophy size={40} color="var(--accent)" />}
-                            title="Получай Награды"
-                            desc="Выполняй миссии, получай звезды и новые уровни!"
-                            example="Миссия выполнена: +50 Звезд 🌟"
-                        />
-                    </div>
-                </div>
-            </section>
+                    <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: '800', lineHeight: '1.1', margin: '1.5rem 0', color: '#111827', letterSpacing: '-0.02em' }}>
+                        Учение — это<br />
+                        <span style={{ color: 'var(--primary)', background: '-webkit-linear-gradient(45deg, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            Приключение!
+                        </span>
+                    </h1>
 
-            {/* For Parents Section */}
-            <section className="parents-features section-padding" style={{ backgroundColor: 'white' }}>
-                <div className="container">
-                    <h2 style={{ textAlign: 'center' }}>Для Родителей 🦸‍♂️</h2>
-                    <div className="grid-3">
-                        <FeatureCard
-                            icon={<Activity size={40} color="var(--primary-dark)" />}
-                            title="Следите за Прогрессом"
-                            desc="Смотрите, как улучшаются навыки вашего ребенка."
-                        />
-                        <FeatureCard
-                            icon={<MessageCircle size={40} color="var(--secondary)" />}
-                            title="Будьте на Связи"
-                            desc="Получайте уведомления на Email, Telegram или Push."
-                        />
-                        <FeatureCard
-                            icon={<Users size={40} color="var(--danger)" />}
-                            title="Чат с Учителем"
-                            desc="Прямая связь с учителем для обсуждения обучения."
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* For Teachers Section */}
-            <section className="teachers-features section-padding">
-                <div className="container" style={{ textAlign: 'center' }}>
-                    <h2>Для Учителей 👩‍🏫</h2>
-                    <p style={{ maxWidth: '600px', margin: '0 auto 2rem' }}>
-                        Управляйте классами, назначайте задания и смотрите подробные отчеты.
+                    <p style={{ fontSize: '1.25rem', color: '#6b7280', margin: '0 auto 2.5rem', maxWidth: '600px', lineHeight: '1.6' }}>
+                        Элегантный и увлекательный мир для детей. Изучайте буквы, развивайте речь и достигайте новых уровней вместе с учителями.
                     </p>
-                    <div className="grid-3">
-                        <div className="card">
-                            <h3>Назначение Задач</h3>
-                            <p>Создавайте упражнения для класса.</p>
+
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <Link
+                            to="/register"
+                            className="btn btn-primary"
+                            style={{ padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 25px -5px rgba(56, 189, 248, 0.4)' }}
+                        >
+                            Начать Путешествие <ArrowRight size={20} />
+                        </Link>
+                        <Link
+                            to="/login"
+                            className="btn btn-secondary"
+                            style={{ padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '12px', backgroundColor: 'white', color: '#111827', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
+                        >
+                            Войти в аккаунт
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* Consolidated Features Section */}
+            <section className="section-padding" style={{ paddingBottom: '6rem' }}>
+                <div className="container">
+                    <div
+                        className="grid-3"
+                        style={{
+                            gap: '2rem',
+                            opacity: isVisible ? 1 : 0,
+                            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+                            transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s'
+                        }}
+                    >
+                        {/* Feature 1 */}
+                        <div style={cardStyle}>
+                            <div style={{ ...iconWrapperStyle, backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--primary)' }}>
+                                <BookOpen size={28} />
+                            </div>
+                            <h3 style={cardTitleStyle}>Интерактивные Задания</h3>
+                            <p style={cardDescStyle}>
+                                Увлекательные миссии по чтению и распознаванию речи, разработанные специально для детей 6-8 лет.
+                            </p>
                         </div>
-                        <div className="card">
-                            <h3>Мониторинг</h3>
-                            <p>Видите, кому нужна помощь в реальном времени.</p>
+
+                        {/* Feature 2 */}
+                        <div style={cardStyle}>
+                            <div style={{ ...iconWrapperStyle, backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)' }}>
+                                <Activity size={28} />
+                            </div>
+                            <h3 style={cardTitleStyle}>Прогресс Онлайн</h3>
+                            <p style={cardDescStyle}>
+                                Подробная аналитика для родителей и учителей. Следите за успехами и зонами роста ребенка в реальном времени.
+                            </p>
                         </div>
-                        <div className="card">
-                            <h3>Обратная Связь</h3>
-                            <p>Отправляйте персональные советы ученикам.</p>
+
+                        {/* Feature 3 */}
+                        <div style={cardStyle}>
+                            <div style={{ ...iconWrapperStyle, backgroundColor: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent)' }}>
+                                <Mic size={28} />
+                            </div>
+                            <h3 style={cardTitleStyle}>Голосовой Ввод</h3>
+                            <p style={cardDescStyle}>
+                                Инновационная система распознавания речи помогает малышам тренировать правильное произношение и дикцию.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -103,17 +118,42 @@ const LandingPage = () => {
     );
 };
 
-const FeatureCard = ({ icon, title, desc, example }) => (
-    <div className="card">
-        <div style={{ marginBottom: '1rem' }}>{icon}</div>
-        <h3>{title}</h3>
-        <p style={{ color: 'var(--text-light)', marginBottom: example ? '1rem' : '0' }}>{desc}</p>
-        {example && (
-            <div style={{ background: 'var(--bg-soft)', padding: '0.5rem', borderRadius: '8px', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                "{example}"
-            </div>
-        )}
-    </div>
-);
+// Minimalist inline styles for structural elements
+const cardStyle = {
+    backgroundColor: 'white',
+    padding: '2.5rem 2rem',
+    borderRadius: '24px',
+    border: '1px solid #f3f4f6',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    cursor: 'default',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+};
+
+const iconWrapperStyle = {
+    width: '60px',
+    height: '60px',
+    borderRadius: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1.5rem',
+};
+
+const cardTitleStyle = {
+    fontSize: '1.25rem',
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: '0.75rem',
+};
+
+const cardDescStyle = {
+    color: '#6b7280',
+    lineHeight: '1.6',
+    fontSize: '1rem',
+};
 
 export default LandingPage;

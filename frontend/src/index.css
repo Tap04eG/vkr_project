@@ -1,14 +1,22 @@
 :root {
-  --primary: #4dade8;    /* Soft playful blue */
+  --primary: #4dade8;
+  /* Soft playful blue */
   --primary-dark: #2087c0;
-  --secondary: #aef0d3;  /* Mint green */
-  --accent: #ffd166;     /* Sunny yellow */
-  --danger: #ef476f;     /* Coral red */
-  --text-main: #2d3436;
-  --text-light: #636e72;
-  --bg-soft: #f0fdf6;
-  --font-main: 'Outfit', sans-serif; /* Requires Google Font import in index.html */
-  --radius-lg: 24px;
+  --secondary: #aef0d3;
+  /* Mint green */
+  --accent: #ffd166;
+  /* Sunny yellow */
+  --danger: #ef476f;
+  /* Coral red */
+  --text-main: #1f2937;
+  /* Slightly darker, more elegant text */
+  --text-light: #6b7280;
+  --bg-soft: #f8fafc;
+  /* Clean neutral slate/gray, replaces greenish tint */
+  --font-main: 'Outfit', sans-serif;
+  /* Requires Google Font import in index.html */
+  --radius-lg: 20px;
+  /* Slightly softer radius */
   --radius-md: 16px;
   --radius-sm: 8px;
 }
@@ -28,14 +36,28 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-weight: 700;
   line-height: 1.2;
 }
 
-h1 { font-size: 3rem; color: var(--primary-dark); }
-h2 { font-size: 2.2rem; margin-bottom: 1rem; }
-h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+h1 {
+  font-size: 3rem;
+  color: var(--primary-dark);
+}
+
+h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
 
 /* Utilities */
 .container {
@@ -74,7 +96,7 @@ h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
 .btn-secondary {
   background-color: white;
   color: var(--primary-dark);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary:hover {
@@ -86,19 +108,31 @@ h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
   background: white;
   border-radius: var(--radius-lg);
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease;
+  border: 1px solid #f3f4f6;
+  /* Subtle border for minimalist look */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  /* Modern soft shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
 }
 
 /* Animations */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
@@ -106,8 +140,15 @@ h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
 }
 
 @keyframes bounce-sm {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .hover-bounce:hover {
