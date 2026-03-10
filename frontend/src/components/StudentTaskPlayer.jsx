@@ -12,6 +12,7 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
     const [orderedItems, setOrderedItems] = useState({ pool: [], answer: [] }); // For ordering (Pool -> Answer)
     const [inputAnswer, setInputAnswer] = useState(''); // For input
     const [blanks, setBlanks] = useState({}); // For fill_blanks
+    const [htmlGameFinished, setHtmlGameFinished] = useState(false); // For html_game iframe callback
 
     useEffect(() => {
         // Безопасный парсинг данных задачи
@@ -38,8 +39,41 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
         }
     }, [task]);
 
+    // Слушатель для iframe (html_game)
+    useEffect(() => {
+        if (task.task_type !== 'html_game') return;
+        
+        const handleMessage = (event) => {
+            if (event.data && event.data.type === 'TASK_COMPLETED') {
+                setHtmlGameFinished(true);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [task.task_type]);
+
+    useEffect(() => {
+        if (htmlGameFinished && status === 'playing') {
+            checkAnswer();
+            setHtmlGameFinished(false); // Reset to avoid multiple calls
+        }
+    }, [htmlGameFinished, status]);
+
     // ПОМОЩНИКИ
     const checkAnswer = async () => {
+        // HTML Games are self-validating via the iframe.
+        // We just need to signal the dashboard to ping the `/complete` endpoint.
+        if (task.task_type === 'html_game') {
+            setStatus('correct');
+            setTimeout(() => {
+                onComplete({ correct: false, status: 'completed' }); 
+                // correct: false forces StudentDashboard to hit the `/complete` endpoint
+                // because it doesn't have the new XP calculated yet. 
+            }, 1000);
+            return;
+        }
+
         let answerPayload = null;
 
         // Prepare payload based on type
@@ -249,20 +283,22 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
 
     // ОСНОВНОЙ РЕНДЕР
     return (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-            {/* Header */}
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '10px', color: 'var(--primary-dark)' }}>{data.gameTitle || "Выполни задание"}</h3>
-            <p style={{ color: '#666' }}>{task.description}</p>
-
-            {/* Attempts Indicator */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', margin: '15px 0' }}>
-                {[...Array(Math.min(5, attempts))].map((_, i) => (
-                    <X key={i} size={20} color="red" />
-                ))}
-            </div>
+        <div style={{ padding: task.task_type === 'html_game' ? '0' : '20px', textAlign: 'center', width: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* Header & Attempts */}
+            {task.task_type !== 'html_game' && (
+                <>
+                    <h3 style={{ fontSize: '1.5rem', marginBottom: '10px', color: 'var(--primary-dark)' }}>{data.gameTitle || "Выполни задание"}</h3>
+                    <p style={{ color: '#666' }}>{task.description}</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', margin: '15px 0' }}>
+                        {[...Array(Math.min(5, attempts))].map((_, i) => (
+                            <X key={i} size={20} color="red" />
+                        ))}
+                    </div>
+                </>
+            )}
 
             {/* Game Area */}
-            <div style={{ minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ flexGrow: 1, minHeight: task.task_type === 'html_game' ? '0' : '200px', display: 'flex', flexDirection: 'column', width: '100%' }}>
                 {task.task_type === 'selection' && renderSelection()}
                 {task.task_type === 'ordering' && renderOrdering()}
                 {task.task_type === 'input' && renderInput()}
@@ -277,6 +313,7 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
                                 fontSize: '1.1rem',
                                 width: '100%',
                                 minHeight: '150px',
+                                flexGrow: 1,
                                 borderRadius: '12px',
                                 border: '2px solid #ddd',
                                 resize: 'vertical',
@@ -287,32 +324,47 @@ const StudentTaskPlayer = ({ task, onComplete }) => {
                     </div>
                 )}
                 {task.task_type === 'fill_blanks' && renderFillBlanks()}
+                {task.task_type === 'html_game' && (
+                    <div style={{ width: '100%', flexGrow: 1, position: 'relative', overflow: 'hidden', margin: 0, padding: 0 }}>
+                        {data.url ? (
+                            <iframe 
+                                src={data.url} 
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: '0', background: '#E1F5FE', display: 'block' }}
+                                title="interactive-game"
+                            />
+                        ) : (
+                            <div style={{ color: 'red', margin: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>Ошибка загрузки: URL игры не указан</div>
+                        )}
+                    </div>
+                )}
                 {task.task_type === 'text' && <div style={{ fontSize: '1.2rem' }}>Просто нажми "Сдать", когда закончишь.</div>}
             </div>
 
             {/* Controls */}
-            <div style={{ marginTop: '40px' }}>
-                {status === 'playing' && (
-                    <button onClick={checkAnswer} className="btn btn-primary" style={{ padding: '12px 40px', fontSize: '1.2rem', borderRadius: '30px' }}>
-                        Проверить ответ
-                    </button>
-                )}
-                {status === 'incorrect' && (
-                    <div style={{ color: 'red', fontWeight: 'bold', fontSize: '1.2rem', animation: 'shake 0.5s' }}>
-                        Попробуй еще раз!
-                    </div>
-                )}
-                {status === 'correct' && (
-                    <div style={{ color: '#00b894', fontWeight: 'bold', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                        <Check size={32} /> Молодец!
-                    </div>
-                )}
-                {status === 'review_pending' && (
-                    <div style={{ color: '#0077b6', fontWeight: 'bold', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                        <RefreshCw size={32} className="spin" /> Отправлено учителю!
-                    </div>
-                )}
-            </div>
+            {task.task_type !== 'html_game' && (
+                <div style={{ marginTop: '40px' }}>
+                    {status === 'playing' && (
+                        <button onClick={checkAnswer} className="btn btn-primary" style={{ padding: '12px 40px', fontSize: '1.2rem', borderRadius: '30px' }}>
+                            Проверить ответ
+                        </button>
+                    )}
+                    {status === 'incorrect' && (
+                        <div style={{ color: 'red', fontWeight: 'bold', fontSize: '1.2rem', animation: 'shake 0.5s' }}>
+                            Попробуй еще раз!
+                        </div>
+                    )}
+                    {status === 'correct' && (
+                        <div style={{ color: '#00b894', fontWeight: 'bold', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            <Check size={32} /> Молодец!
+                        </div>
+                    )}
+                    {status === 'review_pending' && (
+                        <div style={{ color: '#0077b6', fontWeight: 'bold', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            <RefreshCw size={32} className="spin" /> Отправлено учителю!
+                        </div>
+                    )}
+                </div>
+            )}
 
             <style>{`
                 @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }

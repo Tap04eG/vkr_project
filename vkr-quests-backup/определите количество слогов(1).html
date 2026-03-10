@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Количество слогов в словах - Обучающая игра</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #F3E5F5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background-color: #E1BEE7;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.2);
+            border: 5px solid #9C27B0;
+        }
+        
+        h1 {
+            color: #4A148C;
+            text-align: center;
+            margin-top: 0;
+            text-shadow: 2px 2px 0 #CE93D8;
+            font-size: 2.5rem;
+        }
+        
+        .instructions {
+            background-color: #BA68C8;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #FFFFFF;
+            text-align: center;
+            border: 3px dashed #9C27B0;
+        }
+        
+        .level-info {
+            background-color: #CE93D8;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #4A148C;
+            text-align: center;
+            border: 2px solid #9C27B0;
+            font-weight: bold;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #CE93D8;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 25px;
+            overflow: hidden;
+            border: 3px solid #9C27B0;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #9C27B0;
+            border-radius: 7px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .task-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: #CE93D8;
+            border-radius: 15px;
+            padding: 15px;
+            border: 4px solid #9C27B0;
+        }
+        
+        .task-title {
+            text-align: center;
+            color: #4A148C;
+            margin-top: 0;
+            font-size: 1.8rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .words-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #E1BEE7;
+            border-radius: 15px;
+            border: 2px dashed #9C27B0;
+        }
+        
+        .word-card {
+            width: 220px;
+            background-color: #BA68C8;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 3px solid #9C27B0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .word {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 0 #4A148C;
+        }
+        
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .input-label {
+            font-size: 1.2rem;
+            color: #FFFFFF;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .number-input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #9C27B0;
+            border-radius: 8px;
+            background-color: white;
+            color: #4A148C;
+        }
+        
+        .number-input:focus {
+            outline: none;
+            border-color: #7B1FA2;
+            box-shadow: 0 0 5px rgba(123, 31, 162, 0.5);
+        }
+        
+        .number-input.correct {
+            background-color: #C8E6C9;
+            border-color: #4CAF50;
+            color: #2E7D32;
+        }
+        
+        .number-input.incorrect {
+            background-color: #FFCDD2;
+            border-color: #F44336;
+            color: #C62828;
+        }
+        
+        .check-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #7B1FA2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .check-button:hover {
+            background-color: #6A1B9A;
+            transform: translateY(-2px);
+        }
+        
+        .check-button:active {
+            transform: translateY(0);
+        }
+        
+        .check-button:disabled {
+            background-color: #B39DDB;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .level-complete-container {
+            text-align: center;
+            padding: 25px;
+            background-color: #D1C4E9;
+            border-radius: 15px;
+            border: 4px solid #7B1FA2;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .level-complete-title {
+            color: #4A148C;
+            margin-top: 0;
+            font-size: 2rem;
+        }
+        
+        .level-complete-message {
+            font-size: 1.8rem;
+            color: #6A1B9A;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 white;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 25px;
+        }
+        
+        .game-button {
+            padding: 15px 40px;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0 10px;
+        }
+        
+        .game-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .next-level-button {
+            background-color: #7B1FA2;
+        }
+        
+        .next-level-button:hover {
+            background-color: #6A1B9A;
+        }
+        
+        .restart-button {
+            background-color: #9575CD;
+        }
+        
+        .restart-button:hover {
+            background-color: #7E57C2;
+        }
+        
+        .exit-button {
+            background-color: #AB47BC;
+        }
+        
+        .exit-button:hover {
+            background-color: #8E24AA;
+        }
+        
+        .final-result-container {
+            text-align: center;
+            padding: 30px;
+            background-color: #BA68C8;
+            border-radius: 15px;
+            border: 4px solid #9C27B0;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .final-result-title {
+            color: #4A148C;
+            margin-top: 0;
+            font-size: 2.2rem;
+        }
+        
+        .final-reward {
+            font-size: 2.2rem;
+            color: #4A148C;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 white;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 25px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .task-status {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-top: 15px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .completed {
+            color: #2E7D32;
+            font-weight: bold;
+        }
+        
+        .not-completed {
+            color: #C62828;
+        }
+        
+        .feedback {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            min-height: 25px;
+            font-weight: bold;
+        }
+        
+        .correct-feedback {
+            color: #2E7D32;
+        }
+        
+        .incorrect-feedback {
+            color: #C62828;
+        }
+        
+        .score-display {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #FFFFFF;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .word-card.correct {
+            background-color: #C8E6C9;
+            border-color: #4CAF50;
+        }
+        
+        .word-card.incorrect {
+            background-color: #FFCDD2;
+            border-color: #F44336;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .task-container {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .word-card {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .game-button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .words-container {
+                gap: 15px;
+            }
+        }
+        
+        /* Стили для слогов */
+        .syllables-input-label {
+            font-size: 1.5rem;
+            color: #FFFFFF;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .syllables-input {
+            width: 80px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: 3px solid #9C27B0;
+            border-radius: 10px;
+            background-color: white;
+            color: #4A148C;
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Количество слогов в словах</h1>
+        
+        <div class="instructions">
+            Определи количество слогов в каждом слове. Впиши ответ в поле. Помни: каждый слог содержит один гласный звук!
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 4
+        </div>
+        
+        <div class="score-display" id="score-display">
+            Правильных ответов: <span id="score">0</span> из <span id="total-words">4</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/4</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Определи количество слогов</h2>
+                
+                <div class="words-container" id="words-container">
+                    <!-- Карточки со словами будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="check-button" id="check-answers-button">Проверить все ответы</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно определил количество слогов!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Слова для задания с правильными ответами (количество слогов)
+        const wordsData = [
+            // Уровень 1 (слова из первого блока)
+            [
+                {word: "Телевизор", syllables: 4},
+                {word: "Дерево", syllables: 3},
+                {word: "Лампочка", syllables: 3},
+                {word: "Чашка", syllables: 2}
+            ],
+            // Уровень 2 (слова из второго блока)
+            [
+                {word: "Вилка", syllables: 2},
+                {word: "Кружка", syllables: 2},
+                {word: "Полка", syllables: 2},
+                {word: "Красный", syllables: 2}
+            ],
+            // Уровень 3 (слова из третьего блока)
+            [
+                {word: "Зеркало", syllables: 3},
+                {word: "Телефон", syllables: 3},
+                {word: "Обои", syllables: 3},
+                {word: "Слон", syllables: 1}
+            ],
+            // Уровень 4 (слова из четвертого блока)
+            [
+                {word: "Тигр", syllables: 1},
+                {word: "Лев", syllables: 1},
+                {word: "Собака", syllables: 3},
+                {word: "Йод", syllables: 1}
+            ]
+        ];
+        
+        // Переменные состояния игры
+        let currentLevel = 1;
+        let score = 0;
+        let totalScore = 0;
+        let isCompleted = false;
+        let userAnswers = new Map(); // Храним ответы пользователя
+        let checkedAnswers = new Map(); // Храним проверенные ответы
+        
+        // Элементы DOM
+        const wordsContainer = document.getElementById('words-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const taskStatus = document.getElementById('task-status');
+        const levelCompleteContainer = document.getElementById('level-complete-container');
+        const levelCompleteTitle = document.getElementById('level-complete-title');
+        const levelCompleteMessage = document.getElementById('level-complete-message');
+        const finalResultContainer = document.getElementById('final-result-container');
+        const finalRewardMessageElement = document.getElementById('final-reward-message');
+        const taskTitle = document.getElementById('task-title');
+        const restartBtn = document.getElementById('restart-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const nextLevelButton = document.getElementById('next-level-button');
+        const levelInfoElement = document.getElementById('level-info');
+        const checkAnswersButton = document.getElementById('check-answers-button');
+        const scoreDisplay = document.getElementById('score');
+        const totalWordsDisplay = document.getElementById('total-words');
+        
+        // Инициализация игры
+        function initGame() {
+            // Сброс состояния игры
+            currentLevel = 1;
+            score = 0;
+            totalScore = 0;
+            isCompleted = false;
+            userAnswers.clear();
+            checkedAnswers.clear();
+            updateProgress();
+            updateScore();
+            finalResultContainer.style.display = 'none';
+            levelCompleteContainer.style.display = 'none';
+            
+            // Загрузка первого уровня
+            loadLevel(1);
+        }
+        
+        // Загрузка уровня
+        function loadLevel(level) {
+            currentLevel = level;
+            
+            // Устанавливаем данные для текущего уровня
+            const levelWords = wordsData[level - 1];
+            levelInfoElement.textContent = `Уровень ${level} из ${wordsData.length}`;
+            taskTitle.textContent = 'Определи количество слогов';
+            
+            // Сброс состояния
+            userAnswers.clear();
+            checkedAnswers.clear();
+            
+            // Очистка контейнера
+            wordsContainer.innerHTML = '';
+            taskStatus.textContent = '';
+            taskStatus.className = 'task-status';
+            
+            // Обновляем общее количество слов
+            totalScore = levelWords.length;
+            totalWordsDisplay.textContent = totalScore;
+            
+            // Создание карточек со словами
+            createWordCards(levelWords);
+            
+            // Обновляем прогресс
+            updateProgress();
+            
+            // Сбрасываем счет
+            score = 0;
+            updateScore();
+            
+            // Активируем кнопку проверки
+            checkAnswersButton.disabled = false;
+            checkAnswersButton.textContent = "Проверить все ответы";
+        }
+        
+        // Создание карточек со словами
+        function createWordCards(levelWords) {
+            levelWords.forEach((wordData, index) => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.dataset.word = wordData.word;
+                wordCard.dataset.index = index;
+                
+                // Создаем уникальный ID для карточки
+                const cardId = `word-${currentLevel}-${index}`;
+                wordCard.id = cardId;
+                
+                // Добавляем слово
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word';
+                wordElement.textContent = wordData.word;
+                wordCard.appendChild(wordElement);
+                
+                // Добавляем поле для слогов
+                const syllablesLabel = document.createElement('div');
+                syllablesLabel.className = 'syllables-input-label';
+                syllablesLabel.textContent = 'Слоги:';
+                wordCard.appendChild(syllablesLabel);
+                
+                const syllablesInput = document.createElement('input');
+                syllablesInput.type = 'number';
+                syllablesInput.min = '1';
+                syllablesInput.max = '6';
+                syllablesInput.className = 'syllables-input';
+                syllablesInput.id = `${cardId}-syllables`;
+                syllablesInput.dataset.word = wordData.word;
+                syllablesInput.dataset.correct = wordData.syllables;
+                
+                // Обработчик изменения значения
+                syllablesInput.addEventListener('input', function() {
+                    handleInputChange(this);
+                });
+                
+                wordCard.appendChild(syllablesInput);
+                
+                // Добавляем карточку в контейнер
+                wordsContainer.appendChild(wordCard);
+            });
+        }
+        
+        // Обработчик изменения значения в поле ввода
+        function handleInputChange(inputElement) {
+            const word = inputElement.dataset.word;
+            const value = parseInt(inputElement.value) || 0;
+            
+            // Сбрасываем стиль при новом вводе
+            inputElement.classList.remove('correct', 'incorrect');
+            
+            // Сбрасываем стиль карточки
+            const card = inputElement.closest('.word-card');
+            card.classList.remove('correct', 'incorrect');
+            
+            // Сохраняем ответ пользователя
+            userAnswers.set(word, value);
+            
+            // Сбрасываем проверку для этого слова
+            checkedAnswers.delete(word);
+            
+            // Обновляем прогресс
+            updateProgress();
+        }
+        
+        // Проверка всех ответов
+        function checkAllAnswers() {
+            const levelWords = wordsData[currentLevel - 1];
+            let correctCount = 0;
+            let allFilled = true;
+            
+            // Проверяем, все ли поля заполнены
+            levelWords.forEach(wordData => {
+                const userAnswer = userAnswers.get(wordData.word);
+                if (!userAnswer || userAnswer === 0) {
+                    allFilled = false;
+                }
+            });
+            
+            if (!allFilled) {
+                taskStatus.textContent = 'Заполни все поля!';
+                taskStatus.className = 'task-status not-completed';
+                return;
+            }
+            
+            // Проверяем каждый ответ
+            levelWords.forEach(wordData => {
+                const userAnswer = userAnswers.get(wordData.word);
+                const card = document.querySelector(`.word-card[data-word="${wordData.word}"]`);
+                const syllablesInput = card.querySelector(`input.syllables-input`);
+                
+                // Проверяем правильность
+                const isCorrect = userAnswer === wordData.syllables;
+                
+                // Обновляем стили полей ввода
+                if (isCorrect) {
+                    syllablesInput.classList.add('correct');
+                    syllablesInput.classList.remove('incorrect');
+                    correctCount++;
+                    checkedAnswers.set(wordData.word, true);
+                } else {
+                    syllablesInput.classList.add('incorrect');
+                    syllablesInput.classList.remove('correct');
+                    checkedAnswers.set(wordData.word, false);
+                }
+                
+                // Обновляем стиль карточки
+                if (isCorrect) {
+                    card.classList.add('correct');
+                    card.classList.remove('incorrect');
+                } else {
+                    card.classList.add('incorrect');
+                    card.classList.remove('correct');
+                    
+                    // Анимация тряски для карточки с ошибкой
+                    setTimeout(() => {
+                        card.classList.remove('incorrect');
+                    }, 500);
+                }
+            });
+            
+            // Обновляем счет
+            score = correctCount;
+            updateScore();
+            
+            // Проверяем, все ли ответы правильные
+            if (correctCount === levelWords.length) {
+                // Все ответы правильные
+                taskStatus.textContent = 'Отлично! Все ответы верные!';
+                taskStatus.className = 'task-status completed';
+                
+                // Отключаем кнопку проверки
+                checkAnswersButton.disabled = true;
+                checkAnswersButton.textContent = "Все ответы проверены";
+                
+                // Показываем экран завершения уровня
+                if (currentLevel < wordsData.length) {
+                    setTimeout(() => {
+                        showLevelComplete();
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        showFinalResults();
+                    }, 1000);
+                }
+            } else {
+                taskStatus.textContent = `Есть ошибки! Правильно: ${correctCount} из ${levelWords.length}`;
+                taskStatus.className = 'task-status not-completed';
+                
+                // Оставляем правильные ответы подсвеченными
+                // Неправильные уже подсвечены красным
+            }
+        }
+        
+        // Обновление прогресса
+        function updateProgress() {
+            const levelWords = wordsData[currentLevel - 1];
+            const totalWords = levelWords.length;
+            
+            // Считаем, сколько слов заполнено полностью
+            let filledCount = 0;
+            levelWords.forEach(wordData => {
+                const answer = userAnswers.get(wordData.word);
+                if (answer && answer !== 0) {
+                    filledCount++;
+                }
+            });
+            
+            const progressPercentage = (filledCount / totalWords) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Прогресс: ${filledCount}/${totalWords}`;
+        }
+        
+        // Обновление счета
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+        
+        // Показ экрана завершения уровня
+        function showLevelComplete() {
+            levelCompleteTitle.textContent = 'Уровень пройден!';
+            levelCompleteMessage.textContent = `Отлично! Ты правильно определил количество слогов в ${score} словах!`;
+            levelCompleteContainer.style.display = 'block';
+            levelCompleteContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Показ финальных результатов
+        function showFinalResults() {
+            isCompleted = true;
+            const totalPossible = wordsData.reduce((sum, level) => sum + level.length, 0);
+            const finalScore = score; // Последний счет уровня
+            finalRewardMessageElement.textContent = `Ты справился со всеми заданиями! Правильных ответов: ${finalScore} из ${totalPossible}`;
+            finalResultContainer.style.display = 'block';
+            finalResultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initGame);
+        
+        // Обработчик кнопки проверки всех ответов
+        checkAnswersButton.addEventListener('click', checkAllAnswers);
+        
+        // Обработчик кнопки перехода на следующий уровень
+        nextLevelButton.addEventListener('click', () => {
+            levelCompleteContainer.style.display = 'none';
+            loadLevel(currentLevel + 1);
+        });
+        
+        // Обработчики финальных кнопок
+        restartBtn.addEventListener('click', () => {
+            finalResultContainer.style.display = 'none';
+            initGame();
+        });
+        
+        exitBtn.addEventListener('click', () => {
+            if (isCompleted) {
+                alert('Молодец! Ты успешно определил количество слогов во всех словах!');
+            } else {
+                alert('Возвращайся, чтобы завершить задание!');
+            }
+        });
+        
+        // Обработчик нажатия клавиши Enter в полях ввода
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                // Если нажат Enter, проверяем все ответы
+                checkAllAnswers();
+            }
+        });
+    </script>
+</body>
+</html>

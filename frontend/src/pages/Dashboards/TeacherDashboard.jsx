@@ -293,6 +293,45 @@ const TeacherClasses = ({
     );
 }
 
+const AVAILABLE_HTML_GAMES = [
+    "гласные и согласные.html",
+    "запиши буквы в правильном порядке1.html",
+    "запиши буквы в правильном порядке2.html",
+    "запиши буквы в правильном порядке3.html",
+    "запиши буквы в правильном порядке4.html",
+    "запиши буквы в правильном порядке5.html",
+    "запиши буквы в правильном порядке6.html",
+    "нб (1).html",
+    "нб (2).html",
+    "нб (3).html",
+    "нб (4).html",
+    "нб (5).html",
+    "нб (6).html",
+    "нб (7).html",
+    "нб (8).html",
+    "нб (9).html",
+    "непарные согласные(по твердости, мягкости).html",
+    "определите количество звуков и букв в слове(1).html",
+    "определите количество звуков и букв в слове(2).html",
+    "определите количество слогов(1).html",
+    "определите количество слогов(2).html",
+    "определите количество слогов, звуков и букв в слове(1).html",
+    "определите количество слогов, звуков и букв в слове(2).html",
+    "парные согласные(по твердости, мягкости).html",
+    "согласные(непарные)(звонкие и глухие).html",
+    "согласные(парные)(звонкие и глухие).html",
+    "установи верный порядок букв 5.html",
+    "установи верный порядок букв 7.html",
+    "установи верный порядок букв 8.html",
+    "установи верный порядок букв 9.html",
+    "установи верный порядок букв.html",
+    "установи верный порядок букв1.html",
+    "установи верный порядок букв2.html",
+    "установи верный порядок букв3.html",
+    "установи верный порядок букв4.html",
+    "установи верный порядок букв6.html"
+];
+
 const TeacherAssignments = ({ classes = [], taskTitle, setTaskTitle, taskDesc, setTaskDesc, taskReward, setTaskReward, targetStudentIds, setTargetStudentIds }) => {
     // -------------------------------------------------------------------------
     // COMPLETE REWRITE: ROBUST WIZARD
@@ -348,11 +387,16 @@ const TeacherAssignments = ({ classes = [], taskTitle, setTaskTitle, taskDesc, s
     const handleAssignTask = async (e) => {
         e.preventDefault();
         try {
+            // Apply robust fallbacks to prevent Backend 422 Verification Errors
+            const finalDesc = taskDesc && taskDesc.trim().length > 0 ? taskDesc.trim() : "Выполни это задание, чтобы заработать опыт!";
+            const finalReward = isNaN(parseInt(taskReward)) || parseInt(taskReward) < 1 ? 10 : parseInt(taskReward);
+            const finalTitle = taskTitle && taskTitle.trim().length > 0 ? taskTitle.trim() : "Новое Задание";
+
             // Updated payload with new fields
             const payload = {
-                title: taskTitle,
-                description: taskDesc,
-                reward_xp: parseInt(taskReward),
+                title: finalTitle,
+                description: finalDesc,
+                reward_xp: finalReward,
                 student_ids: targetStudentIds,
                 task_type: taskType,
                 task_data: JSON.stringify(taskData) // Send as string for now
@@ -554,6 +598,7 @@ const TeacherAssignments = ({ classes = [], taskTitle, setTaskTitle, taskDesc, s
                                             if (e.target.value === 'input') setTaskData({ question: '', correctAnswer: '' });
                                             if (e.target.value === 'essay') setTaskData({ question: '' });
                                             if (e.target.value === 'fill_blanks') setTaskData({ text: '', blanks: [] });
+                                            if (e.target.value === 'html_game') setTaskData({ url: '' });
                                         }}
                                         style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}
                                     >
@@ -563,6 +608,7 @@ const TeacherAssignments = ({ classes = [], taskTitle, setTaskTitle, taskDesc, s
                                         <option value="ordering">Порядок (Собери слово)</option>
                                         <option value="essay">Эссе (Ручная проверка)</option>
                                         <option value="fill_blanks">Заполнение пропусков</option>
+                                        <option value="html_game">Интерактивная HTML-игра</option>
                                     </select>
                                 </div>
 
@@ -779,6 +825,36 @@ const TeacherAssignments = ({ classes = [], taskTitle, setTaskTitle, taskDesc, s
                                                 </div>
                                             </div>
                                         )}
+                                    </div>
+                                )}
+
+                                {taskType === 'html_game' && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '5px' }}>
+                                            <strong>Как работает:</strong> Ученик будет играть в готовую встроенную HTML-игру (Drag & Drop, выбор кнопок и т.д.). Игровой движок сам проверит правильность и начислит награду.
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Выберите игру из встроенной библиотеки</label>
+                                            <select
+                                                value={taskData.url || ''}
+                                                onChange={e => {
+                                                    setTaskData({ ...taskData, url: e.target.value });
+                                                    // Автоматически подставляем название файла в заголовок задания
+                                                    if (!taskTitle) {
+                                                        const cleanTitle = e.target.value.replace('/vkr-quests/', '').replace('.html', '');
+                                                        setTaskTitle(cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1));
+                                                    }
+                                                }}
+                                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', marginTop: '5px' }}
+                                            >
+                                                <option value="">-- Выберите игру --</option>
+                                                {AVAILABLE_HTML_GAMES.map(game => (
+                                                    <option key={game} value={`/vkr-quests/${game}`}>
+                                                        {game.replace('.html', '')}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 )}
                             </div>

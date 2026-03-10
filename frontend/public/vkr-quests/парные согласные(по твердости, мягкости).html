@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Твердые и мягкие согласные - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Твердые и мягкие согласные</h1>
+        
+        <div class="instructions">
+            Перетащи буквы в правильные столбцы: твердые или мягкие согласные. Чтобы вернуть букву обратно, кликни на неё в столбце.
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 3
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/10</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Распредели парные согласные по твердости/мягкости</h2>
+                
+                <div class="columns-container">
+                    <div class="column hard-column">
+                        <div class="column-header hard-header">Твердые согласные</div>
+                        <div class="column-dropzone" id="hard-dropzone" data-type="hard" data-max="5">
+                            <!-- Сюда перетаскиваются твердые согласные -->
+                        </div>
+                        <div class="count-display" id="hard-count">Твердых: 0/5</div>
+                    </div>
+                    
+                    <div class="column soft-column">
+                        <div class="column-header soft-header">Мягкие согласные</div>
+                        <div class="column-dropzone" id="soft-dropzone" data-type="soft" data-max="5">
+                            <!-- Сюда перетаскиваются мягкие согласные -->
+                        </div>
+                        <div class="count-display" id="soft-count">Мягких: 0/5</div>
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно распределил парные согласные!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями! Теперь ты знаешь все парные согласные!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Все парные согласные по твердости/мягкости из вашего задания
+        const hardConsonants = ['Б', 'В', 'Г', 'Д', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х'];
+        const softConsonants = ['Б\'', 'В\'', 'Г\'', 'Д\'', 'З\'', 'К\'', 'Л\'', 'М\'', 'Н\'', 'П\'', 'Р\'', 'С\'', 'Т\'', 'Ф\'', 'Х\''];
+        
+        // Разделяем на три уровня по 5 пар в каждом
+        const level1Hard = ['Б', 'В', 'Г', 'Д', 'З']; // 5 твердых для уровня 1
+        const level1Soft = ['Б\'', 'В\'', 'Г\'', 'Д\'', 'З\'']; // 5 мягких для уровня 1
+        
+        const level2Hard = ['К', 'Л', 'М', 'Н', 'П']; // 5 твердых для уровня 2
+        const level2Soft = ['К\'', 'Л\'', 'М\'', 'Н\'', 'П\'']; // 5 мягких для уровня 2
+        
+        const level3Hard = ['Р', 'С', 'Т', 'Ф', 'Х']; // 5 твердых для уровня 3
+        const level3Soft = ['Р\'', 'С\'', 'Т\'', 'Ф\'', 'Х\'']; // 5 мягких для уровня 3
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-paired-hard-soft.js"></script>
+</body>
+</html>

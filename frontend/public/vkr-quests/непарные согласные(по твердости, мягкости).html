@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Непарные согласные - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Непарные согласные</h1>
+        
+        <div class="instructions">
+            Перетащи буквы в правильные столбцы: твердые или мягкие непарные согласные. Чтобы вернуть букву обратно, кликни на неё в столбце.
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 2
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/6</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Распредели непарные согласные по столбцам</h2>
+                
+                <div class="columns-container">
+                    <div class="column hard-column">
+                        <div class="column-header hard-header">Твердые непарные</div>
+                        <div class="column-dropzone" id="hard-dropzone" data-type="hard" data-max="3">
+                            <!-- Сюда перетаскиваются твердые непарные согласные -->
+                        </div>
+                        <div class="count-display" id="hard-count">Твердых: 0/3</div>
+                    </div>
+                    
+                    <div class="column soft-column">
+                        <div class="column-header soft-header">Мягкие непарные</div>
+                        <div class="column-dropzone" id="soft-dropzone" data-type="soft" data-max="3">
+                            <!-- Сюда перетаскиваются мягкие непарные согласные -->
+                        </div>
+                        <div class="count-display" id="soft-count">Мягких: 0/3</div>
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно распределил непарные согласные!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями! Теперь ты знаешь все непарные согласные!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Все непарные согласные по твердости/мягкости
+        const hardConsonants = ['Ж', 'Ш', 'Ц'];
+        const softConsonants = ['Ч\'', 'Щ\'', 'Й\''];
+        
+        // Уровень 1: все 6 непарных согласных
+        const level1Hard = ['Ж', 'Ш', 'Ц']; // 3 твердых для уровня 1
+        const level1Soft = ['Ч\'', 'Щ\'', 'Й\'']; // 3 мягких для уровня 1
+        
+        // Уровень 2: те же буквы, но в другом порядке для закрепления
+        const level2Hard = ['Ц', 'Ж', 'Ш']; // те же 3 твердых в другом порядке
+        const level2Soft = ['Й\'', 'Ч\'', 'Щ\'']; // те же 3 мягких в другом порядке
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-unpaired-hard-soft.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди букву - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Найди букву!</h1>
+        
+        <div class="instructions">
+            Перетащи нужную букву в окошко под заданием. Выполни все 5 заданий!
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/5</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Найди букву: А</h2>
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="target-container">
+                    <div class="target-title">Помести сюда букву</div>
+                    <div class="drop-zone" id="drop-zone">
+                        Перетащи сюда букву
+                    </div>
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <h2 class="result-title">Поздравляем!</h2>
+            <div class="reward" id="reward-message">Молодец! Отличная работа!</div>
+            <div class="final-controls">
+                <button id="restart-btn">Начать заново</button>
+                <button id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Задания: массив объектов с данными для каждого задания
+        const tasks = [
+            {
+                id: 1,
+                letters: ['Б', 'Ы', 'К', 'А'],
+                targetLetter: 'А',
+                instruction: 'Найди букву: А'
+            },
+            {
+                id: 2,
+                letters: ['Е', 'П', 'Ф', 'Ш'],
+                targetLetter: 'П',
+                instruction: 'Найди букву: П'
+            },
+            {
+                id: 3,
+                letters: ['Х', 'В', 'Ч'],
+                targetLetter: 'В',
+                instruction: 'Найди букву: В'
+            },
+            {
+                id: 4,
+                letters: ['С', 'Ы', 'К'],
+                targetLetter: 'С',
+                instruction: 'Найди букву: С'
+            },
+            {
+                id: 5,
+                letters: ['Ж', 'З', 'К'],
+                targetLetter: 'К',
+                instruction: 'Найди букву: К'
+            }
+        ];
+
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-find-letter.js"></script>
+</body>
+</html>

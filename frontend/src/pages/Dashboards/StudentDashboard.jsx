@@ -312,24 +312,32 @@ const StudentDashboard = () => {
                     animation: 'fadeIn 0.2s'
                 }}>
                     <div style={{
-                        background: 'white', width: '90%', maxWidth: '600px',
+                        background: 'white', 
+                        width: '90%', 
+                        maxWidth: activeTask.task_type === 'html_game' ? '1100px' : '600px',
+                        height: activeTask.task_type === 'html_game' ? '90vh' : 'auto',
+                        maxHeight: '95vh',
+                        display: 'flex', 
+                        flexDirection: 'column',
                         borderRadius: '20px', overflow: 'hidden', position: 'relative',
                         boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
                     }}>
                         <button
                             onClick={() => setActiveTask(null)}
-                            style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}
+                            style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer', zIndex: 10 }}
                         >
                             <X size={24} color="#aaa" />
                         </button>
 
-                        <StudentTaskPlayer
-                            task={activeTask}
-                            onComplete={(score) => {
-                                handleComplete(activeTask.id, score);
-                                setActiveTask(null);
-                            }}
-                        />
+                        <div style={{ flexGrow: 1, overflowY: activeTask.task_type === 'html_game' ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column' }}>
+                            <StudentTaskPlayer
+                                task={activeTask}
+                                onComplete={(score) => {
+                                    handleComplete(activeTask.id, score);
+                                    setActiveTask(null);
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}

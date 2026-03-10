@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Количество слогов, звуков и букв в словах</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Количество слогов, звуков и букв в словах</h1>
+        
+        <div class="instructions">
+            Определи количество слогов, звуков и букв в каждом слове. Впиши ответы в поля. Помни: каждый слог содержит один гласный звук, а количество букв и звуков не всегда совпадает!
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 4
+        </div>
+        
+        <div class="score-display" id="score-display">
+            Правильных ответов: <span id="score">0</span> из <span id="total-words">3</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/3</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Определи количество слогов, звуков и букв</h2>
+                
+                <div class="words-container" id="words-container">
+                    <!-- Карточки со словами будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="check-button" id="check-answers-button">Проверить все ответы</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно определил количество слогов, звуков и букв!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Слова для задания с правильными ответами (слоги, буквы, звуки)
+        const wordsData = [
+            // Уровень 1
+            [
+                {word: "Пол", syllables: 1, letters: 3, sounds: 3},
+                {word: "Лес", syllables: 1, letters: 3, sounds: 3},
+                {word: "Мама", syllables: 2, letters: 4, sounds: 4}
+            ],
+            // Уровень 2
+            [
+                {word: "Папа", syllables: 2, letters: 4, sounds: 4},
+                {word: "Лось", syllables: 1, letters: 4, sounds: 3},
+                {word: "Маяк", syllables: 2, letters: 4, sounds: 5}
+            ],
+            // Уровень 3
+            [
+                {word: "Мышка", syllables: 2, letters: 5, sounds: 5},
+                {word: "Чашка", syllables: 2, letters: 5, sounds: 5},
+                {word: "Ручка", syllables: 2, letters: 5, sounds: 5}
+            ],
+            // Уровень 4
+            [
+                {word: "Шапка", syllables: 2, letters: 5, sounds: 5},
+                {word: "Рубашка", syllables: 3, letters: 7, sounds: 7},
+                {word: "Кольцо", syllables: 2, letters: 6, sounds: 5}
+            ]
+        ];
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-syllables-sounds-letters.js"></script>
+</body>
+</html>

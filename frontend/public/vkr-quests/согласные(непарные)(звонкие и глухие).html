@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Непарные согласные - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Непарные согласные</h1>
+        
+        <div class="instructions">
+            Перетащи непарные согласные в правильные столбцы: только звонкие или только глухие. Чтобы вернуть букву обратно, кликни на неё в столбце.
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 2
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/5</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Распредели непарные согласные по звонкости/глухости</h2>
+                
+                <div class="columns-container">
+                    <div class="column voiced-unpaired-column">
+                        <div class="column-header voiced-unpaired-header">Только звонкие (непарные)</div>
+                        <div class="column-dropzone" id="voiced-unpaired-dropzone" data-type="voiced-unpaired" data-max="4">
+                            <!-- Сюда перетаскиваются только звонкие согласные -->
+                        </div>
+                        <div class="count-display" id="voiced-unpaired-count">Только звонких: 0/4</div>
+                    </div>
+                    
+                    <div class="column voiceless-unpaired-column">
+                        <div class="column-header voiceless-unpaired-header">Только глухие (непарные)</div>
+                        <div class="column-dropzone" id="voiceless-unpaired-dropzone" data-type="voiceless-unpaired" data-max="4">
+                            <!-- Сюда перетаскиваются только глухие согласные -->
+                        </div>
+                        <div class="count-display" id="voiceless-unpaired-count">Только глухих: 0/4</div>
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно распределил непарные согласные!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями! Теперь ты знаешь все непарные согласные!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Непарные согласные из вашего задания
+        const voicedUnpairedConsonants = ['Л', 'М', 'Н', 'Р', 'Й']; // Только звонкие (непарные)
+        const voicelessUnpairedConsonants = ['Ч', 'Щ', 'Ц', 'Х']; // Только глухие (непарные)
+        
+        // Разделяем на два уровня
+        const level1VoicedUnpaired = ['Л', 'М', 'Н', 'Р']; // 4 только звонкие для уровня 1
+        const level1VoicelessUnpaired = ['Ч', 'Щ', 'Ц', 'Х']; // 4 только глухие для уровня 1
+        
+        const level2VoicedUnpaired = ['Й', 'Л', 'М', 'Н']; // 4 только звонкие для уровня 2 (включая Й)
+        const level2VoicelessUnpaired = ['Ч', 'Щ', 'Ц', 'Х']; // 4 только глухие для уровня 2
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-unpaired-voiced-voiceless.js"></script>
+</body>
+</html>

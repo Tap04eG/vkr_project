@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Количество звуков и букв в словах - Обучающая игра</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Количество звуков и букв в словах</h1>
+        
+        <div class="instructions">
+            Определи количество звуков и букв в каждом слове. Впиши ответы в поля. Помни: в русском языке не всегда количество букв и звуков совпадает!
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 4
+        </div>
+        
+        <div class="score-display" id="score-display">
+            Правильных ответов: <span id="score">0</span> из <span id="total-words">4</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/4</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Определи количество звуков и букв</h2>
+                
+                <div class="words-container" id="words-container">
+                    <!-- Карточки со словами будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="check-button" id="check-answers-button">Проверить все ответы</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно определил количество звуков и букв!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Слова для задания с правильными ответами (звуки, буквы)
+        // Исправлены ответы: 
+        // - Зайчик: 6 звуков (не 5)
+        // - Белочка: 7 звуков (не 6)
+        // - Тетрадь: 6 звуков (не 7)
+        const wordsData = [
+            // Уровень 1
+            [
+                {word: "Зайчик", sounds: 6, letters: 6},   // Исправлено: 6 звуков
+                {word: "Белочка", sounds: 7, letters: 7},  // Исправлено: 7 звуков
+                {word: "Солнышко", sounds: 8, letters: 8},
+                {word: "Дождик", sounds: 6, letters: 6}
+            ],
+            // Уровень 2
+            [
+                {word: "Лужица", sounds: 6, letters: 6},
+                {word: "Рыбка", sounds: 5, letters: 5},
+                {word: "Береза", sounds: 6, letters: 6},
+                {word: "Груша", sounds: 5, letters: 5}
+            ],
+            // Уровень 3
+            [
+                {word: "Машина", sounds: 6, letters: 6},
+                {word: "Сумка", sounds: 5, letters: 5},
+                {word: "Булавка", sounds: 7, letters: 7},
+                {word: "Игрушка", sounds: 7, letters: 7}
+            ],
+            // Уровень 4
+            [
+                {word: "Ботинки", sounds: 7, letters: 7},
+                {word: "Тетрадь", sounds: 6, letters: 7},  // Исправлено: 6 звуков, 7 букв
+                {word: "Одежда", sounds: 6, letters: 6},
+                {word: "Карандаш", sounds: 8, letters: 8}
+            ]
+        ];
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-sounds-letters.js"></script>
+</body>
+</html>

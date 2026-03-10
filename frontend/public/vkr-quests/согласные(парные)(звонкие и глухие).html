@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Глухие и звонкие согласные - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Глухие и звонкие согласные</h1>
+        
+        <div class="instructions">
+            Перетащи парные согласные в правильные столбцы: звонкие или глухие. Чтобы вернуть букву обратно, кликни на неё в столбце.
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 2
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/6</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Распредели парные согласные по звонкости/глухости</h2>
+                
+                <div class="columns-container">
+                    <div class="column voiced-column">
+                        <div class="column-header voiced-header">Звонкие согласные (парные)</div>
+                        <div class="column-dropzone" id="voiced-dropzone" data-type="voiced" data-max="3">
+                            <!-- Сюда перетаскиваются звонкие согласные -->
+                        </div>
+                        <div class="count-display" id="voiced-count">Звонких: 0/3</div>
+                    </div>
+                    
+                    <div class="column voiceless-column">
+                        <div class="column-header voiceless-header">Глухие согласные (парные)</div>
+                        <div class="column-dropzone" id="voiceless-dropzone" data-type="voiceless" data-max="3">
+                            <!-- Сюда перетаскиваются глухие согласные -->
+                        </div>
+                        <div class="count-display" id="voiceless-count">Глухих: 0/3</div>
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно распределил парные согласные!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями! Теперь ты знаешь все парные согласные по звонкости/глухости!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Парные согласные по звонкости/глухости из вашего задания
+        const voicedConsonants = ['Б', 'В', 'Д', 'З', 'Ж', 'Г']; // Звонкие (парные)
+        const voicelessConsonants = ['П', 'Ф', 'Т', 'С', 'Ш', 'К']; // Глухие (парные)
+        
+        // Разделяем на два уровня по 3 пары в каждом
+        const level1Voiced = ['Б', 'В', 'Д']; // 3 звонкие для уровня 1
+        const level1Voiceless = ['П', 'Ф', 'Т']; // 3 глухие для уровня 1
+        
+        const level2Voiced = ['З', 'Ж', 'Г']; // 3 звонкие для уровня 2
+        const level2Voiceless = ['С', 'Ш', 'К']; // 3 глухие для уровня 2
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-paired-voiced-voiceless.js"></script>
+</body>
+</html>

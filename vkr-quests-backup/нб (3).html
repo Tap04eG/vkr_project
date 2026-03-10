@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди букву - Обучающая игра для детей</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #FFF8E1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #FFE0B2;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+            border: 5px solid #FF9800;
+        }
+        
+        h1 {
+            color: #E65100;
+            text-align: center;
+            margin-top: 0;
+            text-shadow: 2px 2px 0 #FFCC80;
+            font-size: 2.5rem;
+        }
+        
+        .instructions {
+            background-color: #FFB74D;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #5D4037;
+            text-align: center;
+            border: 3px dashed #FF9800;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #FFCC80;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 25px;
+            overflow: hidden;
+            border: 3px solid #FF9800;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #FF9800;
+            border-radius: 7px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5D4037;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .task-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: #FFCC80;
+            border-radius: 15px;
+            padding: 15px;
+            border: 4px solid #FF9800;
+        }
+        
+        .task-title {
+            text-align: center;
+            color: #BF360C;
+            margin-top: 0;
+            font-size: 1.8rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 120px;
+            padding: 15px;
+            background-color: #FFE0B2;
+            border-radius: 15px;
+            border: 2px dashed #FF9800;
+        }
+        
+        .letter {
+            width: 70px;
+            height: 70px;
+            background-color: #FF9800;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            cursor: move;
+            user-select: none;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            border: 4px solid #FF5722;
+        }
+        
+        .letter:hover {
+            transform: scale(1.05);
+        }
+        
+        .letter.dragging {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+        
+        .target-container {
+            min-height: 150px;
+            background-color: #FFE0B2;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 3px dashed #FF9800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .target-title {
+            color: #5D4037;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .drop-zone {
+            width: 100%;
+            min-height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #5D4037;
+        }
+        
+        .drop-zone.highlight {
+            background-color: #FFB74D;
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #FFB74D;
+            border-radius: 15px;
+            border: 4px solid #FF9800;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-title {
+            color: #BF360C;
+            margin-top: 0;
+            font-size: 2rem;
+        }
+        
+        .reward {
+            font-size: 2.2rem;
+            color: #E65100;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 white;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 25px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        button {
+            padding: 12px 30px;
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background-color: #FFCC80;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .task-status {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-top: 15px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .completed {
+            color: #388E3C;
+            font-weight: bold;
+        }
+        
+        .not-completed {
+            color: #D32F2F;
+        }
+        
+        .final-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .task-container {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .letter {
+                width: 65px;
+                height: 65px;
+                font-size: 2.2rem;
+            }
+            
+            .final-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .final-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Найди букву!</h1>
+        
+        <div class="instructions">
+            Перетащи нужную букву в окошко под заданием. Выполни все 5 заданий!
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/5</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Найди букву: О</h2>
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="target-container">
+                    <div class="target-title">Помести сюда букву</div>
+                    <div class="drop-zone" id="drop-zone">
+                        Перетащи сюда букву
+                    </div>
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <h2 class="result-title">Поздравляем!</h2>
+            <div class="reward" id="reward-message">Молодец! Отличная работа!</div>
+            <div class="final-controls">
+                <button id="restart-btn">Начать заново</button>
+                <button id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Задания: массив объектов с данными для каждого задания
+        const tasks = [
+            {
+                id: 1,
+                letters: ['М', 'Н', 'О', 'П'],
+                targetLetter: 'О',
+                instruction: 'Найди букву: О'
+            },
+            {
+                id: 2,
+                letters: ['С', 'Т', 'У', 'Ф'],
+                targetLetter: 'Т',
+                instruction: 'Найди букву: Т'
+            },
+            {
+                id: 3,
+                letters: ['Э', 'Ю', 'Я', 'Щ'],
+                targetLetter: 'Ю',
+                instruction: 'Найди букву: Ю'
+            },
+            {
+                id: 4,
+                letters: ['А', 'Б', 'В', 'Г'],
+                targetLetter: 'А',
+                instruction: 'Найди букву: А'
+            },
+            {
+                id: 5,
+                letters: ['Д', 'Е', 'Ж', 'З'],
+                targetLetter: 'Е',
+                instruction: 'Найди букву: Е'
+            }
+        ];
+
+        // Переменные состояния игры
+        let currentTaskIndex = 0;
+        let completedTasks = 0;
+        
+        // Элементы DOM
+        const lettersContainer = document.getElementById('letters-container');
+        const dropZone = document.getElementById('drop-zone');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const taskStatus = document.getElementById('task-status');
+        const resultContainer = document.getElementById('result-container');
+        const rewardMessageElement = document.getElementById('reward-message');
+        const taskTitle = document.getElementById('task-title');
+        const restartBtn = document.getElementById('restart-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        
+        // Инициализация игры
+        function initGame() {
+            // Сброс состояния игры
+            currentTaskIndex = 0;
+            completedTasks = 0;
+            updateProgress();
+            resultContainer.style.display = 'none';
+            
+            // Загрузка первого задания
+            loadTask(currentTaskIndex);
+        }
+        
+        // Загрузка задания
+        function loadTask(taskIndex) {
+            const task = tasks[taskIndex];
+            
+            // Очистка контейнеров
+            lettersContainer.innerHTML = '';
+            dropZone.innerHTML = 'Перетащи сюда букву';
+            taskStatus.textContent = '';
+            taskStatus.className = 'task-status';
+            
+            // Установка заголовка задания
+            taskTitle.textContent = task.instruction;
+            
+            // Создание букв для перетаскивания
+            task.letters.forEach(letter => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                letterElement.dataset.letter = letter;
+                
+                // Добавление обработчиков событий для перетаскивания
+                letterElement.addEventListener('dragstart', handleDragStart);
+                letterElement.addEventListener('dragend', handleDragEnd);
+                
+                lettersContainer.appendChild(letterElement);
+            });
+            
+            // Добавление обработчиков событий для зоны сброса
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+        }
+        
+        // Обработчик начала перетаскивания
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.letter);
+            e.target.classList.add('dragging');
+            dropZone.classList.add('highlight');
+        }
+        
+        // Обработчик окончания перетаскивания
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            dropZone.classList.remove('highlight');
+        }
+        
+        // Обработчик наведения на зоны сброса
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('highlight');
+        }
+        
+        // Обработчик ухода с зоны сброса
+        function handleDragLeave(e) {
+            e.preventDefault();
+            dropZone.classList.remove('highlight');
+        }
+        
+        // Обработчик сброса на зону
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('highlight');
+            
+            const letter = e.dataTransfer.getData('text/plain');
+            const task = tasks[currentTaskIndex];
+            
+            // Проверка правильности ответа
+            if (letter === task.targetLetter) {
+                // Создаем круглую букву в зоне сброса
+                const correctLetter = document.createElement('div');
+                correctLetter.className = 'letter';
+                correctLetter.textContent = letter;
+                correctLetter.style.backgroundColor = '#4CAF50';
+                correctLetter.style.pointerEvents = 'none';
+                
+                // Очищаем зону сброса и добавляем правильную букву
+                dropZone.innerHTML = '';
+                dropZone.appendChild(correctLetter);
+                
+                taskStatus.textContent = 'Правильно!';
+                taskStatus.className = 'task-status completed';
+                
+                // Увеличиваем счетчик выполненных заданий
+                if (currentTaskIndex === completedTasks) {
+                    completedTasks++;
+                    updateProgress();
+                }
+                
+                // Автоматически переходим к следующему заданию через 1.5 секунды
+                setTimeout(() => {
+                    nextTask();
+                }, 1500);
+                
+            } else {
+                // Создаем круглую букву в зоне сброса (неправильный ответ)
+                const wrongLetter = document.createElement('div');
+                wrongLetter.className = 'letter';
+                wrongLetter.textContent = letter;
+                wrongLetter.style.backgroundColor = '#F44336';
+                wrongLetter.style.pointerEvents = 'none';
+                
+                // Очищаем зону сброса и добавляем неправильную букву
+                dropZone.innerHTML = '';
+                dropZone.appendChild(wrongLetter);
+                
+                taskStatus.textContent = 'Попробуй еще раз!';
+                taskStatus.className = 'task-status not-completed';
+                
+                // Через секунду очищаем зону сброса
+                setTimeout(() => {
+                    dropZone.innerHTML = 'Перетащи сюда букву';
+                    taskStatus.textContent = '';
+                }, 1000);
+            }
+        }
+        
+        // Обновление прогресса
+        function updateProgress() {
+            const progressPercentage = (completedTasks / tasks.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Прогресс: ${completedTasks}/${tasks.length}`;
+        }
+        
+        // Переход к следующему заданию
+        function nextTask() {
+            // Если это последнее задание, показываем результаты
+            if (currentTaskIndex === tasks.length - 1) {
+                showResults();
+                return;
+            }
+            
+            // Иначе переходим к следующему заданию
+            if (currentTaskIndex < tasks.length - 1) {
+                currentTaskIndex++;
+                loadTask(currentTaskIndex);
+            }
+        }
+        
+        // Показ результатов
+        function showResults() {
+            // Показываем контейнер с результатами
+            resultContainer.style.display = 'block';
+            
+            // Прокручиваем к результатам
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initGame);
+        
+        // Добавление обработчиков событий для кнопок
+        restartBtn.addEventListener('click', () => {
+            initGame();
+        });
+        
+        exitBtn.addEventListener('click', () => {
+            // Функция "Завершить" - просто выход/закрытие
+            alert('Вы завершили все задания! Молодец!');
+        });
+    </script>
+</body>
+</html>

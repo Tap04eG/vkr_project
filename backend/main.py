@@ -767,8 +767,8 @@ def complete_task(
     if task.student_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your task")
 
-    # ПРОВЕРКА БЕЗОПАСНОСТИ: Запретить ручное завершение интерактивных задач
-    if task.task_type not in ["theory", "manual"]:
+    # ПРОВЕРКА БЕЗОПАСНОСТИ: Запретить ручное завершение интерактивных задач (кроме html_game)
+    if task.task_type not in ["theory", "manual", "html_game"]:
         raise HTTPException(
             status_code=400, 
             detail="Тип задачи требует автоматической проверки (используйте /check)"

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установи порядок букв - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Установи порядок букв!</h1>
+
+        <div class="instructions">
+            Перетащи правильные буквы на пропущенные места в последовательностях! Выполни все 4 задания!
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/4</div>
+        </div>
+
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Л М … О</h2>
+
+                <div class="target-container">
+                    <div class="target-title">Установи порядок букв</div>
+                    <div class="sequence-container" id="sequence-container">
+                        <!-- Последовательность будет создана через JavaScript -->
+                    </div>
+                </div>
+
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+
+        <div class="result-container" id="result-container">
+            <h2 class="result-title">Поздравляем!</h2>
+            <div class="reward" id="reward-message">Молодец! Отличная работа!</div>
+            <div class="final-controls">
+                <button id="restart-btn">Начать заново</button>
+                <button id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Задания: массив объектов с данными для каждого задания
+        // Правильные ответы: Н, Р, У, Ц (согласно вашему запросу)
+        const tasks = [
+            {
+                id: 1,
+                sequence: ['Л', 'М', '?', 'О'],
+                correctLetter: 'Н',
+                instruction: 'Л М … О',
+                explanation: 'Правильно! Л → М → Н → О'
+            },
+            {
+                id: 2,
+                sequence: ['О', 'П', '?', 'С'],
+                correctLetter: 'Р',
+                instruction: 'О П … С',
+                explanation: 'Правильно! О → П → Р → С'
+            },
+            {
+                id: 3,
+                sequence: ['С', 'Т', '?', 'Ф'],
+                correctLetter: 'У',
+                instruction: 'С Т … Ф',
+                explanation: 'Правильно! С → Т → У → Ф'
+            },
+            {
+                id: 4,
+                sequence: ['Ф', 'Х', '?', 'Ч'],
+                correctLetter: 'Ц',
+                instruction: 'Ф Х … Ч',
+                explanation: 'Правильно! Ф → Х → Ц → Ч'
+            }
+        ];
+
+        // Алфавит для генерации случайных букв (заглавные русские)
+        const alphabet = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я'];
+
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-letter-order.js"></script>
+</body>
+</html>

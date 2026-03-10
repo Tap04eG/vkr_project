@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гласные и согласные буквы - Обучающая игра для детей</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Гласные и согласные буквы</h1>
+        
+        <div class="instructions">
+            Перетащи буквы в правильные столбцы: гласные или согласные. Чтобы вернуть букву обратно, кликни на неё в столбце.
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 2
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/16</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Распредели буквы по столбцам</h2>
+                
+                <div class="columns-container">
+                    <div class="column vowels-column">
+                        <div class="column-header vowels-header">Гласные буквы</div>
+                        <div class="column-dropzone" id="vowels-dropzone" data-type="vowel" data-max="5">
+                            <!-- Сюда перетаскиваются гласные буквы -->
+                        </div>
+                        <div class="count-display" id="vowels-count">Гласных: 0/5</div>
+                    </div>
+                    
+                    <div class="column consonants-column">
+                        <div class="column-header consonants-header">Согласные буквы</div>
+                        <div class="column-dropzone" id="consonants-dropzone" data-type="consonant" data-max="11">
+                            <!-- Сюда перетаскиваются согласные буквы -->
+                        </div>
+                        <div class="count-display" id="consonants-count">Согласных: 0/11</div>
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно распределил 5 гласных и 11 согласных букв!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Все гласные и согласные буквы русского алфавита
+        const allVowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+        const allConsonants = ['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'Й', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'];
+        
+        // Разделяем буквы на два уровня
+        const level1Vowels = ['А', 'Е', 'И', 'О', 'У']; // 5 гласных для уровня 1
+        const level1Consonants = ['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П']; // 11 согласных для уровня 1
+        
+        const level2Vowels = ['Ё', 'Ы', 'Э', 'Ю', 'Я']; // Оставшиеся 5 гласных для уровня 2
+        const level2Consonants = ['Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Й']; // Оставшиеся 10 согласных для уровня 2
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-glasn-soglasn.js"></script>
+</body>
+</html>

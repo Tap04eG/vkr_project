@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Количество слогов в словах - Обучающая игра</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Количество слогов в словах</h1>
+        
+        <div class="instructions">
+            Определи количество слогов в каждом слове. Впиши ответ в поле. Помни: каждый слог содержит один гласный звук!
+        </div>
+        
+        <div class="level-info" id="level-info">
+            Уровень 1 из 4
+        </div>
+        
+        <div class="score-display" id="score-display">
+            Правильных ответов: <span id="score">0</span> из <span id="total-words">4</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/4</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Определи количество слогов</h2>
+                
+                <div class="words-container" id="words-container">
+                    <!-- Карточки со словами будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="check-button" id="check-answers-button">Проверить все ответы</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="level-complete-container" id="level-complete-container">
+            <h2 class="level-complete-title" id="level-complete-title">Уровень пройден!</h2>
+            <div class="level-complete-message" id="level-complete-message">Отлично! Ты правильно определил количество слогов!</div>
+            <button class="game-button next-level-button" id="next-level-button">Перейти к следующему уровню</button>
+        </div>
+        
+        <div class="final-result-container" id="final-result-container">
+            <h2 class="final-result-title">Молодец!</h2>
+            <div class="final-reward" id="final-reward-message">Ты справился со всеми заданиями!</div>
+            <div>
+                <button class="game-button restart-button" id="restart-btn">Играть снова</button>
+                <button class="game-button exit-button" id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Слова для задания с правильными ответами (количество слогов)
+        const wordsData = [
+            // Уровень 1 (слова из первого блока)
+            [
+                {word: "Телевизор", syllables: 4},
+                {word: "Дерево", syllables: 3},
+                {word: "Лампочка", syllables: 3},
+                {word: "Чашка", syllables: 2}
+            ],
+            // Уровень 2 (слова из второго блока)
+            [
+                {word: "Вилка", syllables: 2},
+                {word: "Кружка", syllables: 2},
+                {word: "Полка", syllables: 2},
+                {word: "Красный", syllables: 2}
+            ],
+            // Уровень 3 (слова из третьего блока)
+            [
+                {word: "Зеркало", syllables: 3},
+                {word: "Телефон", syllables: 3},
+                {word: "Обои", syllables: 3},
+                {word: "Слон", syllables: 1}
+            ],
+            // Уровень 4 (слова из четвертого блока)
+            [
+                {word: "Тигр", syllables: 1},
+                {word: "Лев", syllables: 1},
+                {word: "Собака", syllables: 3},
+                {word: "Йод", syllables: 1}
+            ]
+        ];
+        
+        // Переменные состояния игры
+    </script>
+    <script src="../script/game-syllables.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расставь буквы — новые задания 4</title>
+        <link rel="stylesheet" href="../style/stylefortests.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Расставь буквы в правильном порядке!</h1>
+        
+        <div class="instructions">
+            Перетащи буквы. Если что-то не так — можно попробовать снова.
+        </div>
+
+        <div class="task-nav" id="task-nav"></div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">Прогресс: 0/4</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="task-container">
+                <h2 class="task-title" id="task-title">Задание 1</h2>
+                
+                <div class="target-container">
+                    <div class="target-title">Правильный порядок букв</div>
+                    <div class="sequence-container" id="sequence-container">
+                        <!-- слоты будут созданы скриптом -->
+                    </div>
+                </div>
+                
+                <div class="letters-container" id="letters-container">
+                    <!-- буквы будут созданы скриптом -->
+                </div>
+                
+                <div class="buttons-container" id="buttons-container">
+                    <button class="check-button" id="check-button">Проверить</button>
+                </div>
+                
+                <div class="task-status" id="task-status"></div>
+            </div>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <h2 class="result-title" id="result-title">Поздравляем!</h2>
+            <div class="reward" id="reward-message">Все задания пройдены!</div>
+            <div class="final-controls">
+                <button id="restart-btn">Играть снова</button>
+                <button id="exit-btn">Завершить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // НОВЫЕ ЗАДАНИЯ: 
+            // Задание 1: Ц Ч Ш Щ (исходные буквы перемешаны: Ш, Щ, Ц, Ч)
+            // Задание 2: Щ Э Ю Я (исходные буквы перемешаны: Э, Я, Щ, Ю)
+            // Задание 3: С Т У Ф (исходные буквы перемешаны: У, Ф, С, Т)
+            // Задание 4: М Н О П (исходные буквы перемешаны: О, П, М, Н)
+            const tasks = [
+                { 
+                    id: 0, 
+                    correctSequence: ['Ц', 'Ч', 'Ш', 'Щ'], 
+                    letters: ['Ш', 'Щ', 'Ц', 'Ч'], // перемешано: Ц,Ч,Ш,Щ -> Ш,Щ,Ц,Ч
+                    instruction: 'Задание 1' 
+                },
+                { 
+                    id: 1, 
+                    correctSequence: ['Щ', 'Э', 'Ю', 'Я'], 
+                    letters: ['Э', 'Я', 'Щ', 'Ю'], // перемешано: Щ,Э,Ю,Я -> Э,Я,Щ,Ю
+                    instruction: 'Задание 2' 
+                },
+                { 
+                    id: 2, 
+                    correctSequence: ['С', 'Т', 'У', 'Ф'], 
+                    letters: ['У', 'Ф', 'С', 'Т'], // перемешано: С,Т,У,Ф -> У,Ф,С,Т
+                    instruction: 'Задание 3' 
+                },
+                { 
+                    id: 3, 
+                    correctSequence: ['М', 'Н', 'О', 'П'], 
+                    letters: ['О', 'П', 'М', 'Н'], // перемешано: М,Н,О,П -> О,П,М,Н
+                    instruction: 'Задание 4' 
+                }
+            ];
+    </script>
+    <script src="../script/game-letter-order-v2.js"></script>
+</body>
+</html>

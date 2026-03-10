@@ -45,7 +45,7 @@ pnpm-debug.log*
 debug_*.txt
 
 #Another
-vkr-quests/*
+
 
 # Migrations
 # Keep alembic.ini but ignore Mako cache if any
