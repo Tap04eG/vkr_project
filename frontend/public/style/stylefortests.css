@@ -7,70 +7,77 @@
 body {
     margin: 0;
     padding: 10px;
-    background-color: #E1F5FE; 
+    background-color: #E1F5FE;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh; /* Force exactly 100vh */
-    overflow: hidden; /* Ban scrollbars on the iframe level */
-    box-sizing: border-box; /* Prevent padding from pushing past 100vh */
+    height: 100vh;
+    /* Force exactly 100vh */
+    overflow: hidden;
+    /* Ban scrollbars on the iframe level */
+    box-sizing: border-box;
+    /* Prevent padding from pushing past 100vh */
 }
 
 .container {
-    max-width: 1000px; /* Reduced from 1100px so it fits into the 1100px modal with room to spare */
+    max-width: 1000px;
+    /* Reduced from 1100px so it fits into the 1100px modal with room to spare */
     width: 100%;
-    flex-grow: 1; /* Stretch to fill the 100vh body */
+    flex-grow: 1;
+    /* Stretch to fill the 100vh body */
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* Allow internal scrolling if content is huge, but keep iframe clean */
-    background-color: #B3E5FC; 
+    overflow-y: auto;
+    /* Allow internal scrolling if content is huge, but keep iframe clean */
+    background-color: #B3E5FC;
     border-radius: 20px;
-    padding: 15px; /* Slightly reduced */
+    padding: 15px;
+    /* Slightly reduced */
     box-shadow: 0 8px 20px rgba(3, 169, 244, 0.2);
-    border: 5px solid #03A9F4; 
-    box-sizing: border-box; 
+    border: 5px solid #03A9F4;
+    box-sizing: border-box;
     margin-bottom: 10px;
 }
 
 h1 {
-    color: #01579B; 
+    color: #01579B;
     text-align: center;
     margin-top: 0;
     margin-bottom: 20px;
-    text-shadow: 2px 2px 0 #81D4FA; 
+    text-shadow: 2px 2px 0 #81D4FA;
     font-size: 2.5rem;
 }
 
 /*  ИНСТРУКЦИИ  */
 
 .instructions {
-    background-color: #81D4FA; 
+    background-color: #81D4FA;
     padding: 15px;
     border-radius: 15px;
     margin-bottom: 20px;
     font-size: 1.2rem;
-    color: #01579B; 
+    color: #01579B;
     text-align: center;
-    border: 3px dashed #03A9F4; 
+    border: 3px dashed #03A9F4;
 }
 
 /*  ПРОГРЕСС БАР  */
 
 .progress-container {
     width: 100%;
-    background-color: #81D4FA; 
+    background-color: #81D4FA;
     border-radius: 10px;
     margin: 20px 0;
     height: 25px;
     overflow: hidden;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     position: relative;
 }
 
 .progress-bar {
     height: 100%;
     width: 0%;
-    background-color: #03A9F4; 
+    background-color: #03A9F4;
     border-radius: 7px;
     transition: width 0.5s ease;
 }
@@ -84,7 +91,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     font-size: 1rem;
 }
@@ -92,12 +99,12 @@ h1 {
 /*  УРОВНИ  */
 
 .level-info {
-    background-color: #4FC3F7; 
+    background-color: #4FC3F7;
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 15px;
     font-size: 1.3rem;
-    color: #01579B; 
+    color: #01579B;
     text-align: center;
     border: 2px solid #03A9F4;
     font-weight: bold;
@@ -116,15 +123,15 @@ h1 {
 .task-container {
     flex: 1;
     min-width: 300px;
-    background-color: #81D4FA; 
+    background-color: #81D4FA;
     border-radius: 15px;
     padding: 15px;
-    border: 4px solid #03A9F4; 
+    border: 4px solid #03A9F4;
 }
 
 .task-title {
     text-align: center;
-    color: #01579B; 
+    color: #01579B;
     margin-top: 0;
     font-size: 1.8rem;
     min-height: 60px;
@@ -143,15 +150,15 @@ h1 {
     margin-bottom: 25px;
     min-height: 120px;
     padding: 15px;
-    background-color: #B3E5FC; 
+    background-color: #B3E5FC;
     border-radius: 15px;
-    border: 2px solid #03A9F4; 
+    border: 2px solid #03A9F4;
 }
 
 .letter {
     width: 60px;
     height: 60px;
-    background-color: #03A9F4; 
+    background-color: #03A9F4;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -163,7 +170,7 @@ h1 {
     user-select: none;
     transition: transform 0.2s, background-color 0.3s;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-    border: 4px solid #0288D1; 
+    border: 4px solid #0288D1;
 }
 
 .letter:hover {
@@ -177,7 +184,7 @@ h1 {
 
 .letter.used {
     opacity: 0.3;
-    background-color: #0277BD; 
+    background-color: #0277BD;
     cursor: not-allowed;
     pointer-events: none;
 }
@@ -195,36 +202,59 @@ h1 {
 .column {
     flex: 1;
     min-height: 300px;
-    background-color: #B3E5FC; 
+    background-color: #B3E5FC;
     border-radius: 15px;
     padding: 20px;
     text-align: center;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .column-header {
-    color: #01579B; 
+    color: #01579B;
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 1.5rem;
     font-weight: bold;
     padding-bottom: 10px;
-    border-bottom: 2px solid #03A9F4; 
+    border-bottom: 2px solid #03A9F4;
     width: 100%;
 }
 
 /* Цвета для разных типов колонок */
-.vowels-header { color: #D32F2F; } 
-.consonants-header { color: #1976D2; } 
-.voiced-header { color: #1976D2; } 
-.voiceless-header { color: #F57C00; } 
-.hard-header { color: #D32F2F; } 
-.soft-header { color: #1976D2; } 
-.voiced-unpaired-header { color: #1976D2; } 
-.voiceless-unpaired-header { color: #F57C00; } 
+.vowels-header {
+    color: #D32F2F;
+}
+
+.consonants-header {
+    color: #1976D2;
+}
+
+.voiced-header {
+    color: #1976D2;
+}
+
+.voiceless-header {
+    color: #F57C00;
+}
+
+.hard-header {
+    color: #D32F2F;
+}
+
+.soft-header {
+    color: #1976D2;
+}
+
+.voiced-unpaired-header {
+    color: #1976D2;
+}
+
+.voiceless-unpaired-header {
+    color: #F57C00;
+}
 
 .column-dropzone {
     flex-grow: 1;
@@ -323,7 +353,7 @@ h1 {
 .count-display {
     font-size: 1.2rem;
     margin-top: 10px;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
 }
 
@@ -341,25 +371,25 @@ h1 {
 .sequence-slot {
     width: 80px;
     height: 80px;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.2rem;
     font-weight: bold;
-    color: #01579B; 
-    background-color: #B3E5FC; 
+    color: #01579B;
+    background-color: #B3E5FC;
     transition: background-color 0.3s;
     cursor: pointer;
 }
 
 .sequence-slot.highlight {
-    background-color: #4FC3F7; 
+    background-color: #4FC3F7;
 }
 
 .sequence-slot.filled {
-    background-color: #81D4FA; 
+    background-color: #81D4FA;
     border-style: solid;
 }
 
@@ -375,7 +405,7 @@ h1 {
 
 .connector {
     font-size: 2rem;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     margin: 0 5px;
 }
@@ -392,11 +422,11 @@ h1 {
 
 .target-container {
     min-height: 150px;
-    background-color: #B3E5FC; 
+    background-color: #B3E5FC;
     border-radius: 15px;
     padding: 15px;
     text-align: center;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -405,7 +435,7 @@ h1 {
 }
 
 .target-title {
-    color: #01579B; 
+    color: #01579B;
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 1.5rem;
@@ -421,11 +451,11 @@ h1 {
     transition: background-color 0.3s;
     margin-top: 10px;
     font-size: 1.2rem;
-    color: #01579B; 
+    color: #01579B;
 }
 
 .drop-zone.highlight {
-    background-color: #4FC3F7; 
+    background-color: #4FC3F7;
 }
 
 /*КАРТОЧКИ СО СЛОВАМИ*/
@@ -437,18 +467,18 @@ h1 {
     justify-content: center;
     margin-bottom: 25px;
     padding: 15px;
-    background-color: #B3E5FC; 
+    background-color: #B3E5FC;
     border-radius: 15px;
-    border: 2px solid #03A9F4; 
+    border: 2px solid #03A9F4;
 }
 
 .word-card {
     width: 280px;
-    background-color: #81D4FA; 
+    background-color: #81D4FA;
     border-radius: 12px;
     padding: 15px;
     text-align: center;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
@@ -456,7 +486,7 @@ h1 {
 .word {
     font-size: 2rem;
     font-weight: bold;
-    color: #01579B; 
+    color: #01579B;
     margin-bottom: 20px;
     text-shadow: 1px 1px 0 white;
 }
@@ -470,7 +500,7 @@ h1 {
 
 .input-label {
     font-size: 1.2rem;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -482,15 +512,15 @@ h1 {
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
-    border: 2px solid #03A9F4; 
+    border: 2px solid #03A9F4;
     border-radius: 8px;
     background-color: white;
-    color: #01579B; 
+    color: #01579B;
 }
 
 .number-input:focus {
     outline: none;
-    border-color: #0288D1; 
+    border-color: #0288D1;
     box-shadow: 0 0 5px rgba(2, 136, 209, 0.5);
 }
 
@@ -512,10 +542,10 @@ h1 {
     text-align: center;
     font-size: 1.8rem;
     font-weight: bold;
-    border: 3px solid #03A9F4; 
+    border: 3px solid #03A9F4;
     border-radius: 10px;
     background-color: white;
-    color: #01579B; 
+    color: #01579B;
     margin: 0 auto;
     display: block;
 }
@@ -532,9 +562,19 @@ h1 {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 /*  КНОПКА проверки  */
@@ -564,8 +604,8 @@ h1 {
 }
 
 .check-button:disabled {
-    background-color: #81D4FA; 
-    color: #01579B; 
+    background-color: #81D4FA;
+    color: #01579B;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -576,7 +616,7 @@ h1 {
 .score-display {
     font-size: 1.5rem;
     text-align: center;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     margin-bottom: 15px;
 }
@@ -634,22 +674,22 @@ h1 {
 .final-result-container {
     text-align: center;
     padding: 30px;
-    background-color: #4FC3F7; 
+    background-color: #4FC3F7;
     border-radius: 15px;
-    border: 4px solid #03A9F4; 
+    border: 4px solid #03A9F4;
     margin-top: 20px;
     display: none;
 }
 
 .final-result-title {
-    color: #01579B; 
+    color: #01579B;
     margin-top: 0;
     font-size: 2.2rem;
 }
 
 .final-reward {
     font-size: 2.2rem;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     text-shadow: 1px 1px 0 white;
     animation: pulse 1.5s infinite;
@@ -661,22 +701,22 @@ h1 {
 .result-container {
     text-align: center;
     padding: 20px;
-    background-color: #4FC3F7; 
+    background-color: #4FC3F7;
     border-radius: 15px;
-    border: 4px solid #03A9F4; 
+    border: 4px solid #03A9F4;
     margin-top: 20px;
     display: none;
 }
 
 .result-title {
-    color: #01579B; 
+    color: #01579B;
     margin-top: 0;
     font-size: 2rem;
 }
 
 .reward {
     font-size: 2.2rem;
-    color: #01579B; 
+    color: #01579B;
     font-weight: bold;
     text-shadow: 1px 1px 0 white;
     animation: pulse 1.5s infinite;
@@ -684,16 +724,24 @@ h1 {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /*  КНОПКИ  */
 
 button {
     padding: 12px 30px;
-    background-color: #03A9F4; 
+    background-color: #03A9F4;
     color: white;
     border: none;
     border-radius: 12px;
@@ -705,7 +753,7 @@ button {
 }
 
 button:hover {
-    background-color: #0288D1; 
+    background-color: #0288D1;
     transform: translateY(-2px);
 }
 
@@ -767,60 +815,60 @@ button:active {
     .game-area {
         flex-direction: column;
     }
-    
+
     .task-container {
         min-width: 100%;
     }
-    
+
     h1 {
         font-size: 2rem;
     }
-    
+
     .letter {
         width: 55px;
         height: 55px;
         font-size: 1.8rem;
     }
-    
+
     .dropped-letter {
         width: 45px;
         height: 45px;
         font-size: 1.5rem;
     }
-    
+
     .sequence-slot {
         width: 70px;
         height: 70px;
     }
-    
+
     .word-card {
         width: 100%;
         max-width: 300px;
     }
-    
+
     .columns-container {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .column {
         min-height: 250px;
     }
-    
+
     .game-button {
         width: 100%;
         margin: 5px 0;
     }
-    
+
     .final-controls {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .final-controls button {
         width: 100%;
     }
-    
+
     .words-container {
         gap: 15px;
     }

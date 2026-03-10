@@ -22,26 +22,26 @@ function initGame() {
 
 function loadTask(taskIndex) {
     const task = tasks[taskIndex];
-    
+
     lettersContainer.innerHTML = '';
     dropZone.innerHTML = 'Перетащи сюда букву';
     taskStatus.textContent = '';
     taskStatus.className = 'task-status';
     taskTitle.textContent = task.instruction;
-    
+
     task.letters.forEach(letter => {
         const letterElement = document.createElement('div');
         letterElement.className = 'letter';
         letterElement.textContent = letter;
         letterElement.draggable = true;
         letterElement.dataset.letter = letter;
-        
+
         letterElement.addEventListener('dragstart', handleDragStart);
         letterElement.addEventListener('dragend', handleDragEnd);
-        
+
         lettersContainer.appendChild(letterElement);
     });
-    
+
     dropZone.addEventListener('dragover', handleDragOver);
     dropZone.addEventListener('dragleave', handleDragLeave);
     dropZone.addEventListener('drop', handleDrop);
@@ -71,45 +71,45 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     dropZone.classList.remove('highlight');
-    
+
     const letter = e.dataTransfer.getData('text/plain');
     const task = tasks[currentTaskIndex];
-    
+
     if (letter === task.targetLetter) {
         const correctLetter = document.createElement('div');
         correctLetter.className = 'letter';
         correctLetter.textContent = letter;
         correctLetter.style.backgroundColor = '#4CAF50';
         correctLetter.style.pointerEvents = 'none';
-        
+
         dropZone.innerHTML = '';
         dropZone.appendChild(correctLetter);
-        
+
         taskStatus.textContent = 'Правильно!';
         taskStatus.className = 'task-status completed';
-        
+
         if (currentTaskIndex === completedTasks) {
             completedTasks++;
             updateProgress();
         }
-        
+
         setTimeout(() => {
             nextTask();
         }, 1500);
-        
+
     } else {
         const wrongLetter = document.createElement('div');
         wrongLetter.className = 'letter';
         wrongLetter.textContent = letter;
         wrongLetter.style.backgroundColor = '#F44336';
         wrongLetter.style.pointerEvents = 'none';
-        
+
         dropZone.innerHTML = '';
         dropZone.appendChild(wrongLetter);
-        
+
         taskStatus.textContent = 'Попробуй еще раз!';
         taskStatus.className = 'task-status not-completed';
-        
+
         setTimeout(() => {
             dropZone.innerHTML = 'Перетащи сюда букву';
             taskStatus.textContent = '';
@@ -128,7 +128,7 @@ function nextTask() {
         showResults();
         return;
     }
-    
+
     if (currentTaskIndex < tasks.length - 1) {
         currentTaskIndex++;
         loadTask(currentTaskIndex);
