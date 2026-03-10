@@ -26,6 +26,9 @@ limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="Educational Platform API")
 
+# Автоматическое создание таблиц БД при старте (важно для production)
+models.Base.metadata.create_all(bind=database.engine)
+
 # Подключить limiter к приложению
 app.state.limiter = limiter
 
