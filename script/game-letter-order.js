@@ -1,0 +1,312 @@
+// Задания: массив объектов с данными для каждого задания
+        // Правильные ответы: Щ, Д, З, Л (согласно вашему запросу)
+        const tasks = [
+            {
+                id: 1,
+                sequence: ['Ч', 'Ш', '?', 'Ъ'],
+                correctLetter: 'Щ',
+                instruction: 'Ч Ш … Ъ',
+                explanation: 'Правильно! Ч → Ш → Щ → Ъ'
+            },
+            {
+                id: 2,
+                sequence: ['В', 'Г', '?', 'Е'],
+                correctLetter: 'Д',
+                instruction: 'В Г … Е',
+                explanation: 'Правильно! В → Г → Д → Е'
+            },
+            {
+                id: 3,
+                sequence: ['Ё', 'Ж', '?', 'И'],
+                correctLetter: 'З',
+                instruction: 'Ё Ж … И',
+                explanation: 'Правильно! Ё → Ж → З → И'
+            },
+            {
+                id: 4,
+                sequence: ['Й', 'К', '?', 'М'],
+                correctLetter: 'Л',
+                instruction: 'Й К … М',
+                explanation: 'Правильно! Й → К → Л → М'
+            }
+        ];
+
+        // Алфавит для генерации случайных букв (заглавные русские)
+        const alphabet = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я'];
+
+        // Переменные состояния игры
+        let currentTaskIndex = 0;
+        let completedTasks = 0;
+
+        // Элементы DOM
+        const lettersContainer = document.getElementById('letters-container');
+        const sequenceContainer = document.getElementById('sequence-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const taskStatus = document.getElementById('task-status');
+        const resultContainer = document.getElementById('result-container');
+        const rewardMessageElement = document.getElementById('reward-message');
+        const taskTitle = document.getElementById('task-title');
+        const restartBtn = document.getElementById('restart-btn');
+        const exitBtn = document.getElementById('exit-btn');
+
+        // Инициализация игры
+        function initGame() {
+            // Сброс состояния игры
+            currentTaskIndex = 0;
+            completedTasks = 0;
+            updateProgress();
+            resultContainer.style.display = 'none';
+
+            // Загрузка первого задания
+            loadTask(currentTaskIndex);
+        }
+
+        // Загрузка задания
+        function loadTask(taskIndex) {
+            const task = tasks[taskIndex];
+
+            // Очистка контейнеров
+            lettersContainer.innerHTML = '';
+            taskStatus.textContent = '';
+            taskStatus.className = 'task-status';
+
+            // Установка заголовка задания
+            taskTitle.textContent = task.instruction;
+
+            // Обновляем последовательность
+            updateSequence(task);
+
+            // Создание букв для перетаскивания: 1 правильная + 3 случайные неправильные
+            createDraggableLetters(task);
+        }
+
+        // Обновление последовательности
+        function updateSequence(task) {
+            sequenceContainer.innerHTML = '';
+
+            const sequenceItem = document.createElement('div');
+            sequenceItem.className = 'sequence-item';
+
+            task.sequence.forEach((letter, index) => {
+                if (letter === '?') {
+                    // Создаем слот для перетаскивания
+                    const slot = document.createElement('div');
+                    slot.className = 'sequence-slot';
+                    slot.id = 'slot-' + task.id + '-' + index;
+                    slot.dataset.position = index;
+                    slot.dataset.taskId = task.id;
+
+                    // Добавляем обработчики для слота
+                    slot.addEventListener('dragover', handleDragOverSlot);
+                    slot.addEventListener('dragleave', handleDragLeaveSlot);
+                    slot.addEventListener('drop', handleDropSlot);
+
+                    sequenceItem.appendChild(slot);
+                } else {
+                    // Создаем заполненный слот
+                    const slot = document.createElement('div');
+                    slot.className = 'sequence-slot filled';
+                    slot.textContent = letter;
+                    sequenceItem.appendChild(slot);
+                }
+
+                // Добавляем стрелку между элементами (кроме последнего)
+                if (index < task.sequence.length - 1) {
+                    const connector = document.createElement('div');
+                    connector.className = 'connector';
+                    connector.textContent = '→';
+                    sequenceItem.appendChild(connector);
+                }
+            });
+
+            sequenceContainer.appendChild(sequenceItem);
+        }
+
+        // Функция для получения случайных неправильных букв (не равных correctLetter и не входящих в последовательность)
+        function getRandomWrongLetters(correctLetter, sequence, count = 3) {
+            // Буквы, которые нельзя использовать: правильный ответ и буквы из последовательности (кроме '?')
+            const forbidden = new Set([correctLetter, ...sequence.filter(l => l !== '?')]);
+
+            // Доступные буквы из алфавита, которые не входят в forbidden
+            const available = alphabet.filter(letter => !forbidden.has(letter));
+
+            // Перемешиваем и берем первые count
+            const shuffled = [...available].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, count);
+        }
+
+        // Создание перетаскиваемых букв: 1 правильная + 3 случайные неправильные
+        function createDraggableLetters(task) {
+            const lettersToShow = [];
+
+            // Добавляем правильную букву
+            lettersToShow.push({
+                letter: task.correctLetter,
+                isCorrect: true
+            });
+
+            // Получаем 3 случайные неправильные буквы
+            const wrongLetters = getRandomWrongLetters(task.correctLetter, task.sequence, 3);
+            wrongLetters.forEach(letter => {
+                lettersToShow.push({
+                    letter: letter,
+                    isCorrect: false
+                });
+            });
+
+            // Перемешиваем массив, чтобы правильная буква не всегда была первой
+            const shuffledLetters = lettersToShow.sort(() => Math.random() - 0.5);
+
+            // Создаем DOM-элементы
+            shuffledLetters.forEach(item => {
+                const letterDiv = document.createElement('div');
+                letterDiv.className = 'letter';
+                letterDiv.textContent = item.letter;
+                letterDiv.draggable = true;
+                letterDiv.dataset.letter = item.letter;
+                letterDiv.dataset.correct = item.isCorrect ? 'true' : 'false';
+
+                letterDiv.addEventListener('dragstart', handleDragStart);
+                letterDiv.addEventListener('dragend', handleDragEnd);
+
+                lettersContainer.appendChild(letterDiv);
+            });
+        }
+
+        // Обработчик начала перетаскивания
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.letter);
+            e.dataTransfer.setData('correct', e.target.dataset.correct);
+            e.target.classList.add('dragging');
+        }
+
+        // Обработчик окончания перетаскивания
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            // Убираем highlight со всех слотов
+            document.querySelectorAll('.sequence-slot').forEach(slot => {
+                slot.classList.remove('highlight');
+            });
+        }
+
+        // Обработчик наведения на слот
+        function handleDragOverSlot(e) {
+            e.preventDefault();
+            e.target.classList.add('highlight');
+        }
+
+        // Обработчик ухода с слота
+        function handleDragLeaveSlot(e) {
+            e.preventDefault();
+            e.target.classList.remove('highlight');
+        }
+
+        // Обработчик сброса на слот
+        function handleDropSlot(e) {
+            e.preventDefault();
+            e.target.classList.remove('highlight');
+
+            const letter = e.dataTransfer.getData('text/plain');
+            const isCorrect = e.dataTransfer.getData('correct') === 'true';
+            const task = tasks[currentTaskIndex];
+
+            // Заполняем слот буквой
+            e.target.textContent = letter;
+            e.target.classList.add('filled');
+
+            // Проверка правильности ответа
+            if (isCorrect) {
+                e.target.classList.add('correct');
+                e.target.classList.remove('wrong');
+
+                taskStatus.textContent = task.explanation;
+                taskStatus.className = 'task-status completed';
+
+                // Увеличиваем счетчик выполненных заданий, если это задание еще не было выполнено
+                if (currentTaskIndex === completedTasks) {
+                    completedTasks++;
+                    updateProgress();
+                }
+
+                // Автоматически переходим к следующему заданию через 1.5 секунды
+                setTimeout(() => {
+                    nextTask();
+                }, 1500);
+
+            } else {
+                e.target.classList.add('wrong');
+                e.target.classList.remove('correct');
+
+                taskStatus.textContent = 'Неверно! Попробуй другую букву';
+                taskStatus.className = 'task-status not-completed';
+
+                // Через секунду очищаем слот
+                setTimeout(() => {
+                    e.target.textContent = '';
+                    e.target.classList.remove('filled', 'wrong', 'correct');
+                    taskStatus.textContent = '';
+                }, 1000);
+            }
+        }
+
+        // Обновление прогресса
+        function updateProgress() {
+            const progressPercentage = (completedTasks / tasks.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Прогресс: ${completedTasks}/${tasks.length}`;
+        }
+
+        // Переход к следующему заданию
+        function nextTask() {
+            // Если все задания выполнены, показываем результаты
+            if (completedTasks === tasks.length) {
+                showResults();
+                return;
+            }
+
+            // Если есть следующее задание, переходим к нему
+            if (currentTaskIndex < tasks.length - 1) {
+                currentTaskIndex++;
+                loadTask(currentTaskIndex);
+            }
+            // Если текущее последнее, но не все выполнены - остаемся (не должно происходить)
+        }
+
+        // Показ результатов
+        function showResults() {
+            // Определяем сообщение в зависимости от результата
+            let rewardMessage = '';
+            const percentage = (completedTasks / tasks.length) * 100;
+
+            if (percentage === 100) {
+                rewardMessage = 'Великолепно! Все задания выполнены верно!';
+            } else if (percentage >= 75) {
+                rewardMessage = 'Замечательно! Почти все получилось!';
+            } else if (percentage >= 50) {
+                rewardMessage = 'Хорошая работа! Есть над чем поработать!';
+            } else {
+                rewardMessage = 'Не сдавайся! Попробуй ещё раз!';
+            }
+
+            // Обновляем сообщение
+            rewardMessageElement.textContent = rewardMessage;
+
+            // Показываем контейнер с результатами
+            resultContainer.style.display = 'block';
+
+            // Прокручиваем к результатам
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initGame);
+
+        // Добавление обработчиков событий для кнопок
+        restartBtn.addEventListener('click', () => {
+            initGame();
+        });
+
+        exitBtn.addEventListener('click', () => {
+            alert('Игра завершена! Молодец! Ты отлично справился с заданиями!');
+        });
